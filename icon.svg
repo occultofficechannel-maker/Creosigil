@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0A0A0F"/>
+  <!-- 외곽 이중 원 -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#D9CFFF" stroke-width="6" stroke-dasharray="18 12" opacity="0.45"/>
+  <circle cx="256" cy="256" r="185" fill="none" stroke="#D9CFFF" stroke-width="3.5" opacity="0.7"/>
+  <!-- 내부 원 -->
+  <circle cx="256" cy="256" r="120" fill="none" stroke="#D9CFFF" stroke-width="2.5" opacity="0.55"/>
+  <!-- C/S 모노그램 스타일 - 왼쪽 아치 (C) -->
+  <path d="M180 180 Q130 256 180 332" fill="none" stroke="#D9CFFF" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <!-- 오른쪽 S 곡선 상단 -->
+  <path d="M256 160 Q330 160 330 215 Q330 256 256 256" fill="none" stroke="#D9CFFF" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <!-- 오른쪽 S 곡선 하단 -->
+  <path d="M256 256 Q182 256 182 300 Q182 352 256 352" fill="none" stroke="#D9CFFF" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <!-- 중앙 글로우 원 -->
+  <circle cx="256" cy="256" r="22" fill="#9B8CFF" opacity="0.85"/>
+  <circle cx="256" cy="256" r="14" fill="#C8BBFF" opacity="0.9"/>
+  <!-- 십자 축선 -->
+  <line x1="256" y1="75" x2="256" y2="437" stroke="#D9CFFF" stroke-width="1.5" opacity="0.25"/>
+  <line x1="75" y1="256" x2="437" y2="256" stroke="#D9CFFF" stroke-width="1.5" opacity="0.25"/>
+  <!-- 봉인 점들 -->
+  <circle cx="256" cy="71" r="5" fill="#9B8CFF" opacity="0.7"/>
+  <circle cx="256" cy="441" r="5" fill="#9B8CFF" opacity="0.7"/>
+  <circle cx="71" cy="256" r="5" fill="#9B8CFF" opacity="0.7"/>
+  <circle cx="441" cy="256" r="5" fill="#9B8CFF" opacity="0.7"/>
+</svg>
