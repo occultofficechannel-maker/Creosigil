@@ -1,124 +1,181 @@
-// CREOSIGIL - 데이터 정의
-const APP_DATA = {
-  purposes: [
-    { id: 'protection', label: '보호', icon: '🛡', desc: '나와 소중한 것을 지키고 싶을 때', detail: '외부의 부정적 에너지나 해로운 영향으로부터 자신을 보호하는 시길입니다. 경계를 만들고 내면의 방어막을 강화합니다.' },
-    { id: 'purification', label: '정화', icon: '✨', desc: '묵은 기운을 씻어내고 새롭게 시작하고 싶을 때', detail: '부정적인 에너지나 감정의 찌꺼기를 씻어내고 깨끗하게 재시작하는 시길입니다. 공간이나 마음을 맑게 합니다.' },
-    { id: 'prosperity', label: '번영', icon: '🌿', desc: '풍요와 성장을 원할 때', detail: '물질적 풍요, 재정적 성공, 또는 삶의 전반적인 번영을 끌어당기는 시길입니다. 성장과 확장의 에너지를 담습니다.' },
-    { id: 'focus', label: '집중', icon: '🎯', desc: '한 가지에 깊이 몰입하고 싶을 때', detail: '산만함을 줄이고 목표에 집중하는 힘을 강화하는 시길입니다. 명확한 의도와 날카로운 집중력을 위한 문양입니다.' },
-    { id: 'recovery', label: '회복', icon: '🌱', desc: '상처받거나 지쳤을 때 원기를 되찾고 싶을 때', detail: '신체적, 정신적, 감정적 회복을 돕는 시길입니다. 치유의 에너지를 불러오고 내면의 균형을 되찾습니다.' },
-    { id: 'block', label: '차단', icon: '⛔', desc: '특정 에너지나 영향을 막고 싶을 때', detail: '원하지 않는 에너지, 부정적인 사람의 영향, 또는 해로운 패턴을 차단하는 시길입니다. 강한 경계선을 만듭니다.' },
-    { id: 'connection', label: '인연', icon: '🔗', desc: '좋은 인연을 끌어당기거나 관계를 강화하고 싶을 때', detail: '긍정적인 인연을 끌어당기거나 소중한 관계를 강화하는 시길입니다. 사랑, 우정, 협력의 에너지를 담습니다.' },
-    { id: 'intuition', label: '직관', icon: '👁', desc: '내면의 목소리를 듣고 직관력을 높이고 싶을 때', detail: '내면의 지혜와 직관력을 강화하는 시길입니다. 더 깊은 통찰력과 감각적 인식을 위한 문양입니다.' }
-  ],
+// CREOSIGIL — Data: purposes, styles, moods, advice texts
 
-  traditional: {
-    structures: [
-      { id: 'circular_seal', label: '원형 인장형', desc: '가장 안정적인 봉인 구조', detail: '원은 완전함과 순환을 상징합니다. 가장 전통적이고 안정적인 시길 구조로, 내부 상징을 원 안에 봉인하는 형태입니다. 보호와 완결의 에너지가 강합니다.' },
-      { id: 'magic_circle', label: '마법진형', desc: '층위 있는 복합 구조', detail: '여러 겹의 원과 기하학적 요소들이 층을 이루는 복합 구조입니다. 강한 의식적 에너지를 담을 수 있으며, 복잡한 의도 표현에 적합합니다.' },
-      { id: 'seal_gate', label: '봉인문형', desc: '입구를 막는 강력한 봉인', detail: '문과 자물쇠의 개념을 상징화한 구조입니다. 특정 에너지의 진입을 막거나, 의도를 단단히 봉인할 때 사용됩니다. 차단과 보호에 특히 강합니다.' },
-      { id: 'rune_combo', label: '룬 결합형', desc: '룬 문자들의 신비로운 조합', detail: '고대 룬 문자들을 결합하여 만든 복합 시길입니다. 각 룬의 개별 의미가 합쳐져 강력한 상징적 힘을 만들어냅니다.' },
-      { id: 'ritual_symmetry', label: '의식 대칭형', desc: '완벽한 대칭의 의식 문양', detail: '좌우 또는 방사형으로 완벽하게 대칭되는 구조입니다. 균형과 조화의 에너지를 담으며, 정화와 균형 목적에 탁월합니다.' },
-      { id: 'lunar_bond', label: '월상 결속형', desc: '달의 에너지를 담은 문양', detail: '달의 위상(초승달, 반달, 보름달)을 모티프로 한 구조입니다. 직관, 감정, 순환의 에너지와 연결되며 월상의 변화하는 힘을 담습니다.' }
-    ],
-    densities: [
-      { id: 'simple', label: '단순', desc: '핵심만 담은 미니멀한 시길', detail: '불필요한 요소를 제거하고 핵심 상징만 남긴 시길입니다. 강한 집중력과 명확한 의도를 위한 선택입니다.' },
-      { id: 'medium', label: '중간', desc: '균형 잡힌 구성', detail: '상징적 요소와 장식의 균형이 잡힌 시길입니다. 가장 보편적이고 사용하기 좋은 복잡도입니다.' },
-      { id: 'complex', label: '복합', desc: '풍부한 상징이 담긴 시길', detail: '여러 상징적 요소들이 층위를 이루는 복잡한 시길입니다. 다층적인 의도를 담을 수 있습니다.' },
-      { id: 'multilayer', label: '다층', desc: '겹겹이 쌓인 복잡한 문양', detail: '여러 겹의 상징이 중첩되는 가장 복잡한 형태입니다. 깊고 복합적인 의미를 표현할 때 사용합니다.' }
-    ],
-    lineStyles: [
-      { id: 'thin_ink', label: '가는 잉크선', desc: '섬세하고 정교한 필선', detail: '고문헌의 붓글씨처럼 가늘고 정교한 선입니다. 섬세함과 정밀함을 강조하며 우아한 인상을 줍니다.' },
-      { id: 'carved', label: '새긴 선', desc: '돌에 새긴 듯 단단한 선', detail: '고대 비석이나 인장에 새긴 것처럼 단단하고 묵직한 선입니다. 오래 지속되는 강한 의지를 상징합니다.' },
-      { id: 'rough_script', label: '거친 필사선', desc: '손으로 쓴 듯 자연스러운 선', detail: '인간의 손으로 직접 쓴 것 같은 자연스러운 불규칙함이 있는 선입니다. 따뜻한 인간미와 유기적 에너지를 담습니다.' },
-      { id: 'sharp_angle', label: '날카로운 각선', desc: '예리하고 결단력 있는 선', detail: '직선적이고 날카로운 각도를 강조한 선입니다. 결단력, 차단, 보호의 에너지와 잘 맞습니다.' }
-    ],
-    symmetries: [
-      { id: 'full', label: '완전 대칭', desc: '모든 방향으로 완벽하게 대칭', detail: '수직, 수평, 방사형으로 완벽히 대칭되는 가장 안정적인 형태입니다.' },
-      { id: 'partial', label: '반대칭', desc: '좌우만 대칭', detail: '좌우는 대칭이지만 상하는 약간 다릅니다. 안정성과 동시에 방향성을 담습니다.' },
-      { id: 'intentional_imbalance', label: '의도적 불균형', desc: '균형을 깬 역동적 구성', detail: '의도적으로 균형을 깨 긴장감과 에너지의 흐름을 만듭니다. 변화와 움직임을 원할 때 적합합니다.' }
-    ],
-    decorations: [
-      { id: 'outer_ring', label: '외곽 원', desc: '봉인을 감싸는 원', detail: '시길 전체를 감싸는 원형 테두리입니다. 에너지를 내부에 집중시키고 봉인을 강화합니다.' },
-      { id: 'dot_stars', label: '점·별 장식', desc: '신비로운 점과 별 문양', detail: '원 안이나 주위에 점과 별을 배치합니다. 천체의 에너지와 연결되는 장식입니다.' },
-      { id: 'rune_pieces', label: '룬 파편', desc: '룬 문자 조각', detail: '작은 룬 문자 조각들을 장식으로 배치합니다. 고대 언어의 힘을 더합니다.' },
-      { id: 'cross_axis', label: '십자 축', desc: '방향을 나타내는 십자선', detail: '네 방향을 나타내는 십자 구조를 더합니다. 사방위의 에너지를 불러옵니다.' }
-    ]
+const PURPOSES = [
+  { id: 'protection', icon: '🛡', name: '보호', desc: '외부 기운 차단, 감정 소모 방지', advice: '보호의 시길은 경계를 세웁니다. 무엇으로부터 자신을 지키고 싶은지 선명하게 생각하세요.' },
+  { id: 'purification', icon: '✨', name: '정화', desc: '오래된 감정, 부정적 에너지 해소', advice: '정화는 덜어내는 행위입니다. 지금 놓아야 할 것이 무엇인지 떠올리며 선택하세요.' },
+  { id: 'prosperity', icon: '🌿', name: '번영', desc: '풍요, 기회, 흐름의 활성화', advice: '번영은 강요가 아닌 열림입니다. 받아들일 준비가 된 마음으로 시작하세요.' },
+  { id: 'focus', icon: '🎯', name: '집중', desc: '목표 명료화, 잡념 해소, 몰입', advice: '집중의 시길은 단순할수록 강합니다. 하나의 목표만 담으세요.' },
+  { id: 'healing', icon: '💜', name: '회복', desc: '몸과 마음의 치유, 재생', advice: '회복은 시간이 필요합니다. 이 시길은 그 과정을 함께 담아냅니다.' },
+  { id: 'blocking', icon: '🔒', name: '차단', desc: '특정 관계·영향·기운 봉인', advice: '차단은 강한 의지를 요합니다. 무엇을 끊어내고 싶은지 명확히 정하세요.' },
+  { id: 'connection', icon: '🌙', name: '인연', desc: '관계 연결, 좋은 만남 초대', advice: '인연의 시길은 열린 마음에서 시작됩니다. 어떤 관계를 원하는지 생각하세요.' },
+  { id: 'intuition', icon: '👁', name: '직관', desc: '내면의 목소리 강화, 통찰', advice: '직관은 내면에서 옵니다. 고요한 마음으로 선택에 집중하세요.' },
+];
+
+const TRAD_STRUCTURES = [
+  { id: 'circle_seal', icon: '⭕', name: '원형 인장형', desc: '원을 기반으로 한 고전적 봉인 구조. 가장 안정적이고 완결된 인상.', detail: '원형 인장은 시길의 가장 기본적인 형태로, 완전함과 보호를 상징합니다. 동서양 마법 전통에서 모두 쓰이며, 경계를 세우고 의도를 봉인하는 힘이 있습니다.' },
+  { id: 'magic_circle', icon: '🔮', name: '마법진형', desc: '다층 구조의 의식 원진. 복잡하고 신비로운 에너지장.', detail: '마법진은 여러 겹의 원과 상징이 겹쳐 이루어집니다. 복잡한 의도나 여러 목적을 하나의 강력한 구조로 통합할 때 적합합니다.' },
+  { id: 'seal_gate', icon: '🗝', name: '봉인문형', desc: '특정 기운이나 존재를 봉인·차단하는 형태.', detail: '봉인문은 문을 닫는 행위를 상징합니다. 차단, 보호, 결계의 의도에 가장 적합하며 강한 경계를 만들어냅니다.' },
+  { id: 'rune_combo', icon: '𝄞', name: '룬 결합형', desc: '고대 룬 문자를 결합해 의미를 층위화.', detail: '룬은 고대 북유럽의 신성한 문자로, 각각 고유한 의미와 힘을 지닙니다. 여러 룬을 결합해 의도를 다층적으로 표현할 수 있습니다.' },
+  { id: 'symmetric', icon: '⚖', name: '의식 대칭형', desc: '좌우·상하 완전 대칭의 의식 구조. 균형과 안정.', detail: '대칭은 균형과 조화를 나타냅니다. 회복, 정화, 집중처럼 안정을 원하는 의도에 잘 어울립니다.' },
+  { id: 'moon_bind', icon: '🌕', name: '월상 결속형', desc: '달의 위상을 반영한 천체적 봉인 구조.', detail: '달은 변화와 주기, 내면의 힘을 상징합니다. 달의 위상을 담은 시길은 흐름과 타이밍을 의도에 연결합니다.' },
+];
+
+const MODERN_STYLES = [
+  { id: 'minimal_logo', icon: '◻', name: '미니멀 로고형', desc: '핵심 형태만 남긴 정제된 구조. 세련되고 고급스러움.', detail: '미니멀 로고형은 불필요한 요소를 모두 제거하고 본질만 남깁니다. 배경화면과 다른 앱에서 재사용하기 가장 편리한 형태입니다.' },
+  { id: 'geometric', icon: '◇', name: '기하학형', desc: '삼각·육각·원 등 도형 중심의 정교한 구성.', detail: '기하학은 수학적 아름다움과 이성적 질서를 담습니다. 집중, 균형, 목표 달성의 의도와 잘 어울립니다.' },
+  { id: 'neon_symbol', icon: '⚡', name: '네온 심볼형', desc: '발광 효과 중심의 강렬하고 미래적인 인상.', detail: '네온은 빛과 에너지를 가시화합니다. 강한 존재감과 목표 달성 에너지를 시각화하는 데 적합합니다.' },
+  { id: 'emblem', icon: '🏅', name: '엠블럼형', desc: '방패·원형 배지 형태의 권위감 있는 구성.', detail: '엠블럼은 소속감과 정체성을 담습니다. 자신감, 존재감, 번영의 의도를 강하게 표현합니다.' },
+  { id: 'abstract', icon: '〰', name: '추상 아이콘형', desc: '자유로운 선 조합의 개성 있는 구성.', detail: '추상은 규칙을 벗어난 자유로운 표현입니다. 독창적인 개성을 원하거나 직관적 의도를 담고 싶을 때 선택하세요.' },
+  { id: 'crystal', icon: '💎', name: '크리스탈형', desc: '유리·보석 결정체 구조의 신비롭고 고급스러운 인상.', detail: '크리스탈은 정화와 투명함, 고급감을 상징합니다. 에너지 정화, 직관, 고급스러운 미감을 원할 때 선택하세요.' },
+];
+
+const TRAD_SYMBOLS = [
+  { id: 'triangle', icon: '△', name: '삼각', desc: '방향성, 불꽃, 의지' },
+  { id: 'circle', icon: '○', name: '원', desc: '완전함, 순환, 보호' },
+  { id: 'grid', icon: '⊞', name: '사각/격자', desc: '안정, 구조, 지상' },
+  { id: 'stars', icon: '✦', name: '점·별', desc: '천체, 빛, 방향' },
+  { id: 'crescent', icon: '☽', name: '달', desc: '주기, 내면, 여성성' },
+  { id: 'seal_line', icon: '〓', name: '봉인선', desc: '차단, 결계, 경계' },
+];
+
+const TRAD_DENSITY = [
+  { id: 'simple', name: '단순', desc: '요소 1~2개, 여백 강조', icon: '·' },
+  { id: 'medium', name: '중간', desc: '균형 잡힌 구성', icon: '⊙' },
+  { id: 'complex', name: '복합', desc: '다층적 상징 구성', icon: '⊛' },
+  { id: 'multilayer', name: '다층', desc: '겹겹이 쌓인 구조', icon: '⊕' },
+];
+
+const TRAD_LINE_STYLES = [
+  { id: 'thin_ink', name: '가는 잉크선', desc: '섬세하고 정밀한', icon: '—' },
+  { id: 'carved', name: '새긴 선', desc: '강하고 각인된 느낌', icon: '▬' },
+  { id: 'rough', name: '거친 필사선', desc: '유기적이고 손으로 쓴 느낌', icon: '〰' },
+  { id: 'sharp', name: '날카로운 각선', desc: '단호하고 결단적인', icon: '⟨⟩' },
+];
+
+const TRAD_SYMMETRY = [
+  { id: 'full', name: '완전 대칭', desc: '수직·수평·방사 완전 균형' },
+  { id: 'half', name: '반대칭', desc: '일부 대칭, 자연스러운 변주' },
+  { id: 'intentional', name: '의도적 불균형', desc: '방향성이 있는 구조' },
+];
+
+const TRAD_DECORATIONS = [
+  { id: 'outer_ring', name: '외곽 원', desc: '단일 또는 이중 원 테두리', icon: '◯' },
+  { id: 'rune_dots', name: '룬 점열', desc: '점이나 작은 기호의 열', icon: '···' },
+  { id: 'star_dots', name: '별자리 점', desc: '천체의 배치를 참고한 점', icon: '✦✦' },
+  { id: 'seal_cross', name: '결계선', desc: '교차하는 봉인 라인', icon: '✛' },
+];
+
+const MODERN_LINE_STYLES = [
+  { id: 'monoline', name: '모노라인', desc: '균일한 두께의 단일 선', icon: '—' },
+  { id: 'double', name: '이중선', desc: '두 선이 나란히 구성', icon: '═' },
+  { id: 'glow_line', name: '발광선', desc: '빛이 나는 네온 효과', icon: '〜' },
+  { id: 'chrome', name: '크롬 메탈선', desc: '금속 광택이 느껴지는 선', icon: '≡' },
+];
+
+const MODERN_COMPLEXITY = [
+  { id: 'simple', name: '심플', desc: '요소 적고 여백 많음' },
+  { id: 'balance', name: '밸런스', desc: '구조와 장식의 균형' },
+  { id: 'detailed', name: '정교', desc: '세부 묘사 풍부' },
+  { id: 'elaborate', name: '화려함', desc: '장식 강화, 강렬한 인상' },
+];
+
+const MODERN_SYMMETRY = [
+  { id: 'full', name: '완전 대칭', desc: '수직·수평·방사 완전 균형' },
+  { id: 'left_right', name: '좌우 대칭', desc: '좌우만 대칭, 상하 자유' },
+  { id: 'radial', name: '방사 대칭', desc: '중심에서 방사형으로 균형' },
+];
+
+const MOODS = [
+  {
+    id: 'obsidian', name: '흑요석 다크', icon: '🖤',
+    desc: '검고 신비로운 오컬트 무드',
+    colors: { bg: '#070708', line: '#C8C0E8', glow: '#9B8FCC', accent: '#7B70B0', ambient: 'rgba(80, 60, 140, 0.15)' }
   },
-
-  modern: {
-    styles: [
-      { id: 'minimal_logo', label: '미니멀 로고형', desc: '세련된 최소주의 디자인', detail: '불필요한 요소를 모두 제거하고 핵심 형태만 남긴 세련된 스타일입니다. 배경화면과 다른 앱에서 재활용하기 좋습니다.' },
-      { id: 'geometric', label: '기하학형', desc: '정교한 도형 중심 구성', detail: '삼각, 육각, 원 등 기하학적 도형을 중심으로 구성됩니다. 이성적이고 정교한 인상을 줍니다.' },
-      { id: 'neon_symbol', label: '네온 심볼형', desc: '강렬한 발광 효과', detail: '빛이 나는 듯한 네온 효과를 강조한 스타일입니다. 강렬하고 미래적인 인상을 줍니다.' },
-      { id: 'emblem', label: '엠블럼형', desc: '권위있는 배지 스타일', detail: '방패나 원형 배지 형태의 권위감 있는 스타일입니다. 브랜드나 소속감의 느낌을 줍니다.' },
-      { id: 'abstract', label: '추상 아이콘형', desc: '자유롭고 개성 강한 구성', detail: '자유로운 선 조합으로 개성 강한 표현을 합니다. 독창적이고 아트적인 감각을 원할 때 적합합니다.' },
-      { id: 'crystal', label: '크리스탈형', desc: '신비로운 결정체 구조', detail: '다이아몬드나 유리 결정체의 구조를 모티프로 합니다. 고급스럽고 신비로운 인상을 줍니다.' }
-    ],
-    lineStyles: [
-      { id: 'monoline', label: '모노라인', desc: '균일한 단일 선', detail: '두께가 균일한 단일 선으로 구성됩니다. 깔끔하고 세련된 현대적 인상을 줍니다.' },
-      { id: 'double_line', label: '이중선', desc: '두 선이 나란히', detail: '두 선이 나란히 구성되어 입체감과 고급스러움을 더합니다.' },
-      { id: 'glow_line', label: '발광선', desc: '네온처럼 빛나는 선', detail: '빛이 번지는 듯한 네온 효과가 있는 선입니다. 강렬한 시각적 존재감을 만듭니다.' },
-      { id: 'chrome_line', label: '크롬 메탈선', desc: '금속 광택 질감', detail: '금속 광택이 느껴지는 질감의 선입니다. 프리미엄하고 고급스러운 인상을 줍니다.' }
-    ],
-    complexities: [
-      { id: 'simple', label: '심플', desc: '여백이 많고 핵심만', detail: '요소가 적고 여백이 넉넉한 심플한 구성입니다. 잠금화면 배경에 특히 적합합니다.' },
-      { id: 'balanced', label: '밸런스', desc: '구조와 장식의 균형', detail: '구조와 장식 요소가 적절히 균형을 이루는 구성입니다. 홈화면이나 투명 PNG 재활용에 좋습니다.' },
-      { id: 'detailed', label: '정교', desc: '세부 묘사가 풍부', detail: '세부적인 묘사가 풍부한 정교한 구성입니다. 배경화면 고급형이나 포스터 용도에 적합합니다.' }
-    ],
-    symmetries: [
-      { id: 'full', label: '완전 대칭', desc: '모든 방향으로 완벽한 균형', detail: '수직·수평·방사형으로 완전히 균형 잡힌 가장 안정적인 형태입니다.' },
-      { id: 'bilateral', label: '좌우 대칭', desc: '좌우만 대칭', detail: '좌우는 대칭이지만 상하에 약간의 변화가 있어 자연스러운 느낌을 줍니다.' },
-      { id: 'radial', label: '방사 대칭', desc: '중심에서 퍼져나가는 균형', detail: '중심점에서 방사형으로 균형이 잡힌 형태입니다. 에너지 방출의 느낌을 강조합니다.' },
-      { id: 'free', label: '자유 균형', desc: '시각적 균형이지만 수학적이지 않은', detail: '수학적 대칭은 아니지만 시각적으로 균형이 느껴지는 자유로운 형태입니다.' }
-    ]
+  {
+    id: 'moonlight', name: '월광 실버', icon: '🌙',
+    desc: '차갑고 고요한 달빛 무드',
+    colors: { bg: '#0A0D14', line: '#D4E0F0', glow: '#A8C0E0', accent: '#6890C0', ambient: 'rgba(100, 140, 200, 0.12)' }
   },
+  {
+    id: 'crimson', name: '심홍 봉인', icon: '🔴',
+    desc: '붉고 강렬한 봉인의 무드',
+    colors: { bg: '#0D0609', line: '#F0D0D8', glow: '#D06080', accent: '#A04060', ambient: 'rgba(160, 40, 70, 0.15)' }
+  },
+  {
+    id: 'sacred_white', name: '백색 정화', icon: '🤍',
+    desc: '맑고 순수한 정화의 무드',
+    colors: { bg: '#0E0E12', line: '#F0EEF8', glow: '#E0DCF4', accent: '#B0A8D8', ambient: 'rgba(180, 175, 220, 0.1)' }
+  },
+  {
+    id: 'brass', name: '황동 각인', icon: '🟡',
+    desc: '고대의 황동 인장 무드',
+    colors: { bg: '#0C0A06', line: '#E8D890', glow: '#C8B850', accent: '#907830', ambient: 'rgba(160, 140, 40, 0.12)' }
+  },
+  {
+    id: 'neon_astral', name: '네온 아스트랄', icon: '💙',
+    desc: '우주적이고 강렬한 네온 무드',
+    colors: { bg: '#05080F', line: '#90D0FF', glow: '#60A8FF', accent: '#3070E0', ambient: 'rgba(60, 120, 240, 0.15)' }
+  },
+  {
+    id: 'minimal_lux', name: '미니멀 럭스', icon: '⬜',
+    desc: '정제된 고급스러운 미니멀 무드',
+    colors: { bg: '#0F0F12', line: '#D8D4EC', glow: '#B0A8D0', accent: '#7870A8', ambient: 'rgba(120, 115, 170, 0.08)' }
+  },
+  {
+    id: 'cosmic', name: '코스믹 블루', icon: '🔵',
+    desc: '심오하고 우주적인 블루 무드',
+    colors: { bg: '#04060E', line: '#8090D8', glow: '#6080C8', accent: '#3050A0', ambient: 'rgba(60, 80, 180, 0.15)' }
+  },
+];
 
-  moods: [
-    {
-      id: 'obsidian', label: '흑요석 다크', icon: '⬛',
-      bg: '#0A0A0F', line: '#D9CFFF', glow: '#9B8CFF', accent: '#6D5AE6',
-      desc: '깊고 신비로운 어둠', detail: '흑요석처럼 깊고 어두운 배경에 보라빛 선이 빛나는 가장 전통적인 오컬트 분위기입니다.'
-    },
-    {
-      id: 'moonlight', label: '월광 실버', icon: '🌙',
-      bg: '#0C0C14', line: '#E8E0FF', glow: '#B8B0D0', accent: '#9090B8',
-      desc: '달빛처럼 은은한 신비', detail: '달빛이 내려앉은 밤하늘 같은 은은한 은색 빛의 분위기입니다.'
-    },
-    {
-      id: 'crimson', label: '심홍 봉인', icon: '🔴',
-      bg: '#120808', line: '#F0C0C0', glow: '#CC3344', accent: '#992233',
-      desc: '강렬한 붉은 봉인의 힘', detail: '붉은 봉인처럼 강렬하고 결연한 에너지를 담은 분위기입니다.'
-    },
-    {
-      id: 'sacred_white', label: '백색 정화', icon: '⬜',
-      bg: '#F0EEF8', line: '#2A2040', glow: '#5040A0', accent: '#4030A0',
-      desc: '순수하고 정화된 빛', detail: '흰 빛처럼 순수하고 깨끗한 에너지를 담은 분위기입니다.'
-    },
-    {
-      id: 'brass', label: '황동 각인', icon: '🟡',
-      bg: '#0A0800', line: '#D4A848', glow: '#A07830', accent: '#806020',
-      desc: '고대 황동 인장의 무게', detail: '고대 황동 도장처럼 묵직하고 권위 있는 에너지의 분위기입니다.'
-    },
-    {
-      id: 'neon_astral', label: '네온 아스트랄', icon: '💜',
-      bg: '#080814', line: '#CC88FF', glow: '#9944EE', accent: '#6622CC',
-      desc: '우주적 네온 에너지', detail: '보라빛 네온이 우주처럼 깊은 어둠을 수놓는 강렬한 분위기입니다.'
-    },
-    {
-      id: 'minimal_lux', label: '미니멀 럭스', icon: '⚪',
-      bg: '#F5F5F8', line: '#222228', glow: '#888898', accent: '#444455',
-      desc: '미니멀하고 고급스러운', detail: '여백과 정제감을 강조한 현대적이고 고급스러운 분위기입니다.'
-    },
-    {
-      id: 'cosmic_blue', label: '코스믹 블루', icon: '🔵',
-      bg: '#04080F', line: '#80C0FF', glow: '#4080CC', accent: '#2060AA',
-      desc: '우주의 깊은 파란 빛', detail: '깊은 우주의 파란 빛 같은 심오하고 확장적인 분위기입니다.'
-    }
-  ],
+const BACKGROUNDS = [
+  { id: 'pure_black', name: '순수 흑', color: '#000000', gradient: null },
+  { id: 'dark_gradient', name: '다크 그라디언트', color: '#0A0A14', gradient: 'radial-gradient(ellipse at center, #1A1030 0%, #050510 100%)' },
+  { id: 'deep_space', name: '딥 스페이스', color: '#020308', gradient: 'radial-gradient(ellipse at 30% 30%, #0A1030 0%, #020308 70%)' },
+  { id: 'obsidian', name: '흑요석', color: '#080810', gradient: 'linear-gradient(135deg, #120820 0%, #080810 50%, #0A0A18 100%)' },
+  { id: 'dark_forest', name: '어두운 숲', color: '#060C08', gradient: 'linear-gradient(160deg, #0A1410 0%, #060C08 100%)' },
+  { id: 'midnight_blue', name: '미드나잇 블루', color: '#040810', gradient: 'radial-gradient(ellipse at 70% 20%, #0A1428 0%, #040810 60%)' },
+];
 
-  resolutions: [
-    { id: 'hd', label: 'HD', width: 1080, height: 1920, desc: '1080×1920' },
-    { id: 'qhd', label: 'QHD', width: 1440, height: 2560, desc: '1440×2560 (기본)' },
-    { id: '4k', label: '4K', width: 2160, height: 3840, desc: '2160×3840 (최고화질)' }
-  ]
+const ADVICE_TEXTS = {
+  purpose: {
+    single: '하나의 의도는 시길을 선명하게 만듭니다. 지금 가장 중심이 되는 목적을 골랐군요.',
+    double: '두 가지 의도를 선택했습니다. 시길이 복합적이 될 수 있습니다. 더 중요한 것을 생각해보세요.',
+    triple: '세 가지 의도는 시길을 복잡하게 만들 수 있습니다. 하나의 핵심 의도에 집중하면 더 강한 시길이 됩니다.',
+  },
+  structure: {
+    none: '시길의 기반 구조를 선택하세요. 모든 선택에 설명이 있으니 천천히 읽어보세요.',
+  },
+  density: {
+    none: '밀도는 시길의 복잡도를 결정합니다. 처음이라면 단순 또는 중간을 추천합니다.',
+  },
 };
+
+// Resolution presets
+const RESOLUTIONS = [
+  { id: 'hd', label: 'HD', width: 1080, height: 1920 },
+  { id: 'qhd', label: 'QHD', width: 1440, height: 2560 },
+  { id: '4k', label: '4K', width: 2160, height: 3840 },
+];
+
+// Default selections
+const DEFAULTS = {
+  trad: {
+    structure: 'circle_seal',
+    symbol: 'circle',
+    density: 'medium',
+    lineStyle: 'thin_ink',
+    symmetry: 'full',
+    decoration: 'outer_ring',
+  },
+  modern: {
+    style: 'minimal_logo',
+    lineStyle: 'monoline',
+    complexity: 'balance',
+    symmetry: 'full',
+  },
+};
+
+// Validation groups for each step (by type)
+const TRAD_REQUIRED_GROUPS = ['structure', 'symbol', 'density', 'lineStyle', 'symmetry'];
+const MODERN_REQUIRED_GROUPS = ['style', 'lineStyle', 'complexity', 'symmetry'];

@@ -4,433 +4,630 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0A0A0F">
-  <meta name="description" content="CREOSIGIL — 의도를 상징으로 완성하다. 나만의 시길을 만들고 배경화면으로 사용하세요.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="CREOSIGIL">
+  <meta name="description" content="의도를 상징으로 완성하는 시길 제작 앱 — CREOSIGIL">
   <title>CREOSIGIL</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Noto+Serif+KR:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- 순수 JS QR 생성기 (외부 의존 없음) -->
+  <script src="js/qr-generator.js"></script>
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- ======================== INTRO 화면 ======================== -->
-<section class="screen" id="screen-intro">
-  <div class="intro-wrap">
-    <!-- 로고 -->
-    <div class="intro-logo">
-      <div class="intro-logo-icon">
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="42" stroke="#D9CFFF" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-          <circle cx="50" cy="50" r="34" stroke="#D9CFFF" stroke-width="1" opacity="0.7"/>
-          <path d="M30 50 Q50 20 70 50 Q50 80 30 50Z" stroke="#D9CFFF" stroke-width="1.5" fill="none" opacity="0.8"/>
-          <circle cx="50" cy="50" r="5" fill="#9B8CFF" opacity="0.9"/>
-          <line x1="50" y1="16" x2="50" y2="84" stroke="#D9CFFF" stroke-width="0.5" opacity="0.4"/>
-          <line x1="16" y1="50" x2="84" y2="50" stroke="#D9CFFF" stroke-width="0.5" opacity="0.4"/>
+<!-- ========== HOME SCREEN ========== -->
+<div id="screen-home" class="screen home-screen active">
+  <div class="screen-content" style="padding-bottom: 120px;">
+
+    <!-- Hero -->
+    <div class="home-hero">
+      <!-- 봉인 인장형 C/S 모노그램 앱 아이콘 -->
+      <div class="app-icon-svg" style="background:transparent; border:none; box-shadow:none;">
+        <svg viewBox="0 0 120 120" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="glow-icon">
+              <feGaussianBlur stdDeviation="2.5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1A1230"/>
+              <stop offset="100%" stop-color="#0A0A0F"/>
+            </radialGradient>
+          </defs>
+          <!-- 배경 원형 -->
+          <circle cx="60" cy="60" r="58" fill="url(#bg-grad)" stroke="#A992FF" stroke-width="1" opacity="0.5"/>
+          <!-- 이중 외곽 링 -->
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#A992FF" stroke-width="1.5" opacity="0.85" filter="url(#glow-icon)"/>
+          <circle cx="60" cy="60" r="47" fill="none" stroke="#A992FF" stroke-width="0.7" opacity="0.4"/>
+          <!-- 내부 링 -->
+          <circle cx="60" cy="60" r="35" fill="none" stroke="#C8BBFF" stroke-width="0.8" opacity="0.5"/>
+          <!-- 4방위 점 (외곽 링 위) -->
+          <circle cx="60" cy="8" r="3" fill="#A992FF" opacity="0.8"/>
+          <circle cx="60" cy="112" r="3" fill="#A992FF" opacity="0.8"/>
+          <circle cx="8" cy="60" r="3" fill="#A992FF" opacity="0.8"/>
+          <circle cx="112" cy="60" r="3" fill="#A992FF" opacity="0.8"/>
+          <!-- C 글리프 (왼쪽, 역방향 호) -->
+          <path d="M 68 35 A 26 26 0 1 0 68 85" fill="none" stroke="#C8BBFF" stroke-width="3.5" stroke-linecap="round" opacity="0.95" filter="url(#glow-icon)"/>
+          <!-- S 글리프 (오른쪽, 겹치는 S곡선) -->
+          <path d="M 55 44 C 72 44 72 57 60 60 C 48 63 48 76 65 76" fill="none" stroke="#A992FF" stroke-width="3" stroke-linecap="round" opacity="0.9" filter="url(#glow-icon)"/>
+          <!-- 중심 작은 점 -->
+          <circle cx="60" cy="60" r="3.5" fill="#C8BBFF" opacity="0.9"/>
+          <circle cx="60" cy="60" r="1.5" fill="#FFFFFF"/>
         </svg>
       </div>
-      <span class="app-title">CREOSIGIL</span>
-      <span class="app-subtitle">의도를 상징으로 완성하다</span>
-    </div>
+      <h1 class="app-title">CREOSIGIL</h1>
+      <p class="app-tagline">의도를 상징으로 완성하다</p>
 
-    <!-- 시길 정의 -->
-    <div class="intro-definition">
-      <p class="intro-def-title">시길이란 무엇인가요?</p>
-      <p class="intro-def-main">시길은 당신이 원하는 것에 대한 의도를 담아 만든 상징적 인장(문양)입니다.</p>
-      <p class="intro-def-easy">쉽게 말해, 원하는 마음을 하나의 상징으로 정리한 개인의 문양이라고 생각하면 됩니다.</p>
-      <button class="more-toggle" data-target="intro-more-content" id="btn-intro-more">더 알아보기 ▾</button>
-      <div class="more-content" id="intro-more-content">
-        <p>시길(sigil)은 라틴어 <em>sigillum</em>(인장, 봉인)에서 유래한 단어입니다. 중세부터 마법과 의식에서 사용된 개인의 상징으로, 의도나 소원을 하나의 문양으로 압축한 것입니다. 마법진이라는 말은 알아도 '시길'이라는 단어가 낯설 수 있지만, 두 개념은 밀접하게 연관되어 있습니다.</p>
-        <p style="margin-top:8px;">현대적으로는 개인의 의도를 집중하고 시각화하는 도구로 사용됩니다. 전통형은 의식적이고 신비로운 문양으로, 현대형은 세련된 시각 언어로 의도를 표현합니다.</p>
+      <!-- Quick Links: QR + YouTube -->
+      <div class="quick-links">
+        <button class="quick-link-btn" id="btn-qr">
+          <span class="icon">⊞</span>
+          <span>QR 생성기</span>
+        </button>
+        <a class="quick-link-btn yt-btn" href="https://youtube.com/@cursekey" target="_blank" rel="noopener noreferrer">
+          <svg class="yt-icon" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#FF0000"/>
+          </svg>
+          <span>@cursekey</span>
+        </a>
       </div>
     </div>
 
-    <!-- 앱 태도 -->
-    <div class="intro-attitude">
-      이 앱은 단순히 문양을 자동 생성하지 않습니다.<br>
-      당신의 의도를 이해하고, 선택을 도우며,<br>
-      하나의 시길로 완성하도록 안내합니다.
+    <!-- Sigil Definition Card -->
+    <div class="sigil-def-card">
+      <div class="sigil-def-title">✦ 시길이란 무엇인가요?</div>
+      <div class="sigil-def-main">시길은 당신이 원하는 것에 대한 의도를 담아 만든 상징적 인장(문양)입니다.</div>
+      <div class="sigil-def-simple">쉽게 말해, 원하는 마음을 하나의 상징으로 정리한 개인의 문양이라고 생각하면 됩니다.</div>
+      <button class="btn-more" data-target="sigil-more-content">▼ 더 보기</button>
+      <div class="more-content" id="sigil-more-content">
+        <p>'시길(Sigil)'은 라틴어 <strong>sigillum</strong>에서 유래한 말로, '인장' 또는 '봉인'을 의미합니다. 수백 년 전부터 의도나 바람을 상징으로 압축하는 관행에서 시작되었습니다.</p>
+        <p>마법진이라는 말은 익숙해도 '시길'은 낯설 수 있습니다. 마법진이 여럿이 모여 이루는 <em>의식 공간</em>이라면, 시길은 한 사람의 <em>개인적인 상징 인장</em>에 가깝습니다.</p>
+        <p>이 앱에서 시길은 오컬트나 신비주의의 맥락보다, <strong>자신의 의도를 시각화하고 상징으로 완성하는 개인적인 행위</strong>로 접근합니다.</p>
+      </div>
     </div>
 
-    <!-- 제작 철학 -->
-    <p class="intro-philosophy">
-      좋은 시길은 많은 의미를 억지로 담기보다,<br>
-      하나의 중심 의도를 선명하게 정할 때 더 또렷해집니다.
-    </p>
+    <!-- App Attitude -->
+    <div class="attitude-card">
+      <div class="attitude-title">✦ 이 앱의 태도</div>
+      <div class="attitude-text">이 앱은 단순히 문양을 자동 생성하지 않습니다. 당신의 의도를 이해하고, 선택을 도우며, 하나의 시길로 완성하도록 안내합니다.</div>
+      <div class="philosophy-box">
+        <p>좋은 시길은 많은 의미를 억지로 담기보다,<br>하나의 중심 의도를 선명하게 정할 때 더 또렷해집니다.</p>
+      </div>
+    </div>
 
-    <!-- 버튼 -->
-    <div class="intro-actions">
-      <button class="btn-primary" id="btn-intro-start">시길 만들기 시작 →</button>
-      <button class="btn-secondary" id="btn-intro-example">예시 보기</button>
+    <!-- Recent Library -->
+    <div class="section-header">
+      <span class="section-title">✦ 최근 제작 시길</span>
+      <button class="section-action" onclick="renderLibraryScreen(); showScreen('library');">전체 보기</button>
+    </div>
+    <div class="recent-grid" id="recent-grid"></div>
+
+    <!-- Main CTAs -->
+    <div class="cta-section">
+      <button class="btn-primary" id="btn-start-fast">
+        ✦ 시길 만들기 시작
+      </button>
+      <button class="btn-secondary" id="btn-view-library">
+        ☽ 보관함 보기
+      </button>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ======================== HOME 화면 ======================== -->
-<section class="screen" id="screen-home">
-  <div class="home-wrap">
-    <!-- 헤더 -->
-    <div class="home-header">
-      <div class="home-logo-icon">
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="42" stroke="#D9CFFF" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
-          <circle cx="50" cy="50" r="34" stroke="#D9CFFF" stroke-width="1" opacity="0.7"/>
-          <path d="M30 50 Q50 20 70 50 Q50 80 30 50Z" stroke="#D9CFFF" stroke-width="1.5" fill="none" opacity="0.8"/>
-          <circle cx="50" cy="50" r="5" fill="#9B8CFF" opacity="0.9"/>
-        </svg>
-      </div>
-      <div class="home-title">CREOSIGIL</div>
-      <div class="home-tagline">의도를 상징으로 완성하다</div>
-    </div>
-
-    <!-- 제작 진입 -->
-    <div class="home-create-section">
-      <p class="section-header">시길 만들기</p>
-      <div class="create-cards">
-        <div class="create-card" id="btn-home-quick">
-          <span class="create-card-icon">⚡</span>
-          <span class="create-card-title">빠른 제작</span>
-          <span class="create-card-desc">핵심만 선택해서 빠르게</span>
-        </div>
-        <div class="create-card" id="btn-home-detailed">
-          <span class="create-card-icon">✦</span>
-          <span class="create-card-title">정교한 제작</span>
-          <span class="create-card-desc">세부 옵션을 모두 선택</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 도구 -->
-    <div class="home-tools">
-      <button class="tool-btn" id="btn-home-archive">📦 보관함</button>
-      <button class="tool-btn" id="btn-home-sigil-info">📖 시길이란?</button>
-      <button class="tool-btn" id="btn-settings">⚙ 설정</button>
-    </div>
-
-    <!-- 최근 -->
-    <div class="home-recent" id="home-recent-section">
-      <p class="section-header">최근 시길</p>
-      <div class="recent-empty" id="home-recent-empty">
-        아직 만든 시길이 없습니다.<br>첫 번째 시길을 만들어보세요.
-      </div>
-    </div>
+<!-- ========== PURPOSE SCREEN ========== -->
+<div id="screen-purpose" class="screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="home">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">1 / 5</span>
   </div>
-</section>
+  <div class="step-progress"><div class="step-progress-fill" style="width:20%"></div></div>
 
-<!-- ======================== PURPOSE 화면 ======================== -->
-<section class="screen" id="screen-purpose">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>1단계 · 목적 선택</h2>
-    <span style="min-width:36px;"></span>
-  </div>
-  <div class="purpose-wrap">
-    <div class="screen-intro-text">
-      <h3>이 시길의 중심 목적은 무엇인가요?</h3>
-    </div>
-    <div class="screen-advice" id="purpose-section">
-      하나의 중심 목적에 집중하면 더 선명하고 강력한 시길이 만들어집니다. 여러 개를 선택할 수 있지만, 가장 중요한 하나를 먼저 골라보세요.
-      <br><br>
-      <button class="more-toggle" data-target="purpose-more">더 알아보기 ▾</button>
+  <div class="screen-content">
+    <div class="step-hero">
+      <div class="step-number">STEP 01</div>
+      <h2 class="step-title">의도의 목적을 선택하세요</h2>
+      <p class="step-advice">이 시길이 가장 먼저 해야 할 일은 무엇인가요?<br>여러 목적을 선택할 수 있지만, 하나의 중심 의도에 집중할수록 더 선명한 시길이 됩니다.</p>
+      <button class="btn-more" data-target="purpose-more">▼ 더 보기</button>
       <div class="more-content" id="purpose-more">
-        <p>시길의 목적은 당신이 이 문양을 통해 무엇을 원하는지를 정의합니다. 목적이 여럿이면 에너지가 분산될 수 있습니다. 보호와 차단은 비슷해 보이지만, 보호는 '지키는 것'이고 차단은 '막는 것'입니다. 당신의 가장 핵심적인 의도를 골라주세요.</p>
+        <p>시길의 목적은 생성될 문양의 방향성과 에너지를 결정합니다. 보호, 정화, 번영처럼 각 목적은 서로 다른 상징 언어를 가집니다.</p>
+        <p>여러 목적을 동시에 담을 수는 있습니다. 그러나 경험적으로 <strong>하나의 핵심 의도를 선명하게 정할 때</strong> 결과물이 더 강하고 또렷합니다. 여러 의도를 넣으면 시길이 복잡해지고, 중심이 흐려질 수 있습니다.</p>
+        <p>지금 가장 필요한 것, 가장 간절한 것 하나를 고르세요.</p>
       </div>
     </div>
 
-    <div class="purpose-grid">
-      <!-- 목적 카드들 (JS로 생성) -->
-    </div>
+    <div class="dynamic-advice" id="purpose-dynamic-advice"></div>
+    <div class="validation-error" id="purpose-validation-error"></div>
 
-    <div class="purpose-advice" id="purpose-advice"></div>
-
-    <button class="btn-primary" id="btn-purpose-next" style="width:100%; margin-top:8px;">다음 단계로 →</button>
+    <div class="options-grid" id="purpose-options"></div>
   </div>
-</section>
 
-<!-- ======================== TYPE 화면 ======================== -->
-<section class="screen" id="screen-type">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>2단계 · 제작 방식</h2>
-    <span style="min-width:36px;"></span>
+  <div class="bottom-nav">
+    <button class="btn-next" id="btn-purpose-next">다음 단계 →</button>
   </div>
-  <div class="type-wrap">
-    <div class="screen-intro-text">
-      <h3>어떤 방식으로 시길을 만들까요?</h3>
-      <p>전통형과 현대형은 시길을 표현하는 방식이 근본적으로 다릅니다.</p>
-    </div>
-    <div class="type-cards">
-      <div class="type-card" id="btn-type-trad">
-        <div class="type-card-header">
-          <span class="type-icon">🔯</span>
-          <span class="type-label">전통형</span>
-        </div>
-        <p class="type-card-desc">의도를 봉인·상징으로 압축하는 전통적인 방식입니다. 원형 인장, 마법진, 봉인문 등 고대의 상징 문법을 사용합니다.</p>
-        <div class="type-tags">
-          <span class="type-tag">봉인 구조</span>
-          <span class="type-tag">상징 계열</span>
-          <span class="type-tag">의식적</span>
-          <span class="type-tag">신비로운</span>
-        </div>
+</div>
+
+<!-- ========== TYPE SCREEN ========== -->
+<div id="screen-type" class="screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="purpose">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">2 / 5</span>
+  </div>
+  <div class="step-progress"><div class="step-progress-fill" style="width:40%"></div></div>
+
+  <div class="screen-content">
+    <div class="step-hero">
+      <div class="step-number">STEP 02</div>
+      <h2 class="step-title">시길의 유형을 선택하세요</h2>
+      <p class="step-advice">전통형과 현대형은 같은 의도를 다른 방식으로 표현합니다.</p>
+      <button class="btn-more" data-target="type-more">▼ 더 보기</button>
+      <div class="more-content" id="type-more">
+        <p><strong>전통형</strong>은 의도를 '봉인·상징'의 언어로 번역합니다. 원형 인장, 마법진, 룬 결합 등 고대의 형식을 따르며, 무겁고 신비로운 인상을 줍니다. 오컬트 감성이나 어두운 배경화면에 강합니다.</p>
+        <p><strong>현대형</strong>은 의도를 '세련된 시각 언어'로 표현합니다. 미니멀 로고, 기하학, 네온 심볼 등의 현대 디자인을 따르며, 깔끔하고 범용적인 배경화면이나 다른 앱 재사용에 적합합니다.</p>
       </div>
-      <div class="type-card" id="btn-type-modern">
-        <div class="type-card-header">
-          <span class="type-icon">◈</span>
-          <span class="type-label">현대형</span>
-        </div>
-        <p class="type-card-desc">의도를 세련된 시각 언어로 표현하는 현대적 방식입니다. 미니멀 로고, 기하학, 네온 심볼 등 현대적 디자인 언어를 사용합니다.</p>
-        <div class="type-tags">
-          <span class="type-tag">미니멀</span>
-          <span class="type-tag">기하학</span>
-          <span class="type-tag">배경화면 최적화</span>
-          <span class="type-tag">범용</span>
+    </div>
+
+    <div class="options-grid cols-1" id="type-options" style="gap: 12px;">
+      <div class="type-card" data-type="traditional">
+        <div class="type-card-icon">⭕</div>
+        <div class="type-card-name">전통형</div>
+        <div class="type-card-desc">원형 인장, 마법진, 봉인문, 룬 결합 등 고대 형식을 따르는 시길. 신비롭고 무게감 있는 인상.</div>
+        <div class="type-card-tags">
+          <span class="type-tag">봉인·상징</span>
+          <span class="type-tag">오컬트 무드</span>
+          <span class="type-tag">다크 배경화면</span>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ======================== DETAIL-TRADITIONAL 화면 ======================== -->
-<section class="screen" id="screen-detail-traditional">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>3단계 · 전통형 세부 선택</h2>
-    <span style="min-width:36px;"></span>
-  </div>
-  <div class="detail-wrap">
-    <div class="screen-intro-text" style="margin-bottom:16px;">
-      <p>모든 항목을 선택해야 다음으로 넘어갈 수 있습니다. 각 항목의 '더 알아보기'를 눌러 의미를 확인하세요.</p>
-    </div>
-    <div id="trad-options-container"></div>
-    <button class="btn-primary" id="btn-trad-next" style="width:100%; margin-top:12px;">분위기 선택으로 →</button>
-  </div>
-</section>
-
-<!-- ======================== DETAIL-MODERN 화면 ======================== -->
-<section class="screen" id="screen-detail-modern">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>3단계 · 현대형 세부 선택</h2>
-    <span style="min-width:36px;"></span>
-  </div>
-  <div class="detail-wrap">
-    <div class="screen-intro-text" style="margin-bottom:16px;">
-      <p>모든 항목을 선택해야 다음으로 넘어갈 수 있습니다. 각 항목의 '더 알아보기'를 눌러 의미를 확인하세요.</p>
-    </div>
-    <div id="modern-options-container"></div>
-    <button class="btn-primary" id="btn-modern-next" style="width:100%; margin-top:12px;">분위기 선택으로 →</button>
-  </div>
-</section>
-
-<!-- ======================== MOOD 화면 ======================== -->
-<section class="screen" id="screen-mood">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>4단계 · 분위기 선택</h2>
-    <span style="min-width:36px;"></span>
-  </div>
-  <div class="detail-wrap">
-    <div id="mood-options-container"></div>
-    <button class="btn-primary" id="btn-mood-next" style="width:100%; margin-top:12px;">시길 편집으로 →</button>
-  </div>
-</section>
-
-<!-- ======================== EDIT 화면 ======================== -->
-<section class="screen" id="screen-edit">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>시길 편집</h2>
-    <span style="min-width:36px;"></span>
-  </div>
-  <div class="edit-wrap">
-    <!-- 캔버스 -->
-    <div class="canvas-container">
-      <canvas id="edit-canvas" width="360" height="640"></canvas>
-      <div class="generation-progress" id="generation-progress">
-        <span class="progress-label">시길 생성 중</span>
-        <div class="progress-track">
-          <div class="progress-fill" id="progress-bar"></div>
-        </div>
-        <span class="progress-percent" id="progress-text">0%</span>
-      </div>
-    </div>
-
-    <!-- 컨트롤 -->
-    <div class="edit-controls">
-      <div class="control-group">
-        <div class="control-label">
-          크기 <span class="control-value" id="scale-value">100%</span>
-        </div>
-        <input type="range" id="scale-slider" min="0.5" max="2.0" step="0.05" value="1.0">
-      </div>
-      <div class="control-group">
-        <div class="control-label">
-          회전 <span class="control-value" id="rotation-value">0°</span>
-        </div>
-        <input type="range" id="rotation-slider" min="-180" max="180" step="1" value="0">
-      </div>
-      <div class="control-group">
-        <div class="control-label">
-          광채 강도 <span class="control-value" id="glow-value">70%</span>
-        </div>
-        <input type="range" id="glow-slider" min="0.1" max="1.5" step="0.05" value="0.7">
-      </div>
-    </div>
-
-    <!-- 버튼 -->
-    <div class="edit-actions">
-      <button class="btn-secondary" id="btn-edit-generate">다시 생성</button>
-      <button class="btn-primary" id="btn-edit-save">저장하기 →</button>
-    </div>
-  </div>
-</section>
-
-<!-- ======================== SAVE 화면 ======================== -->
-<section class="screen" id="screen-save">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>저장 & 공유</h2>
-    <span style="min-width:36px;"></span>
-  </div>
-  <div class="save-wrap">
-    <!-- 미리보기 -->
-    <div class="save-preview-container">
-      <img id="save-preview" src="" alt="시길 미리보기">
-    </div>
-
-    <!-- 해상도 선택 -->
-    <div class="save-section">
-      <p class="save-section-title">저장 해상도</p>
-      <div class="resolution-btns">
-        <button class="resolution-btn" data-res="hd">
-          <span class="res-label">HD</span>
-          <span class="res-size">1080×1920</span>
-        </button>
-        <button class="resolution-btn active" data-res="qhd">
-          <span class="res-label">QHD</span>
-          <span class="res-size">1440×2560</span>
-        </button>
-        <button class="resolution-btn" data-res="4k">
-          <span class="res-label">4K</span>
-          <span class="res-size">2160×3840</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 저장 버튼들 -->
-    <div class="save-section">
-      <p class="save-section-title">저장 & 내보내기</p>
-      <div class="save-btns">
-        <button class="btn-primary" id="btn-save-png">📲 배경화면 PNG 저장 (고화질)</button>
-        <button class="btn-secondary" id="btn-save-transparent">🔲 투명 PNG 저장 (다른 앱용)</button>
-        <button class="btn-secondary" id="btn-save-svg">📐 SVG 저장</button>
-        <button class="btn-secondary" id="btn-save-share">📤 다른 앱으로 공유</button>
-      </div>
-    </div>
-
-    <!-- 배경화면 설정 가이드 -->
-    <div class="save-section">
-      <div class="wallpaper-guide">
-        <h4>📱 배경화면으로 설정하는 방법</h4>
-        <div class="guide-steps">
-          <div class="guide-step">
-            <div class="step-num">1</div>
-            <span class="step-text"><strong>iPhone:</strong> 사진 앱에서 저장된 이미지 열기 → 공유 → 배경화면으로 사용</span>
-          </div>
-          <div class="guide-step">
-            <div class="step-num">2</div>
-            <span class="step-text"><strong>Android:</strong> 갤러리에서 이미지 열기 → 메뉴 → 배경화면으로 설정</span>
-          </div>
-          <div class="guide-step">
-            <div class="step-num">3</div>
-            <span class="step-text">투명 PNG는 다른 앱(카카오톡, 인스타그램 등)에서 스티커나 오버레이로 활용 가능</span>
-          </div>
+      <div class="type-card" data-type="modern">
+        <div class="type-card-icon">◇</div>
+        <div class="type-card-name">현대형</div>
+        <div class="type-card-desc">미니멀 로고, 기하학, 네온 심볼 등 현대 디자인 언어를 따르는 시길. 세련되고 실용적인 인상.</div>
+        <div class="type-card-tags">
+          <span class="type-tag">시각 언어</span>
+          <span class="type-tag">미니멀 럭스</span>
+          <span class="type-tag">범용 재사용</span>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- 네비게이션 버튼 -->
-    <div class="save-nav-btns">
-      <button class="btn-secondary" id="btn-save-new">새 시길 만들기</button>
-      <button class="btn-secondary" id="btn-save-archive">보관함으로 가기</button>
+  <div class="bottom-nav">
+    <button class="btn-next" id="btn-type-next">다음 단계 →</button>
+  </div>
+</div>
+
+<!-- ========== TRADITIONAL OPTIONS SCREEN ========== -->
+<div id="screen-trad-options" class="screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="type">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">3 / 5</span>
+  </div>
+  <div class="step-progress"><div class="step-progress-fill" style="width:60%"></div></div>
+
+  <div class="screen-content">
+    <div class="step-hero">
+      <div class="step-number">STEP 03 — 전통형</div>
+      <h2 class="step-title">세부 스타일을 설정하세요</h2>
+      <p class="step-advice">각 항목을 모두 선택해야 다음으로 넘어갈 수 있습니다. 각 선택지의 '더 보기'를 눌러 의미를 확인하세요.</p>
+    </div>
+
+    <div class="validation-error" id="trad-validation-error"></div>
+
+    <!-- 봉인 구조 -->
+    <div class="options-section">
+      <div class="options-section-title">봉인 구조 — 시길의 기본 형태를 결정합니다</div>
+      <div class="advice-box">봉인 구조는 시길이 의도를 어떤 방식으로 담을지를 정합니다. 가장 처음 눈에 들어오는 전체적인 형태입니다.</div>
+      <div class="options-grid" id="trad-structure"></div>
+    </div>
+
+    <!-- 중심 상징 -->
+    <div class="options-section">
+      <div class="options-section-title">중심 상징 — 시길의 핵심 기호입니다</div>
+      <div class="advice-box">중심 상징은 시길의 중앙에 놓이는 핵심 기호입니다. 선택한 상징은 의도를 압축해서 담습니다.</div>
+      <div class="options-grid cols-3" id="trad-symbol"></div>
+    </div>
+
+    <!-- 상징 밀도 -->
+    <div class="options-section">
+      <div class="options-section-title">상징 밀도 — 시길의 복잡도입니다</div>
+      <div class="advice-box">처음 만드는 분께는 <strong>중간</strong>을 추천합니다. 밀도가 높을수록 시길은 복잡해지고 의미가 층위화됩니다.</div>
+      <div class="options-grid cols-2" id="trad-density"></div>
+    </div>
+
+    <!-- 선 스타일 -->
+    <div class="options-section">
+      <div class="options-section-title">선 스타일 — 시길의 질감과 결을 정합니다</div>
+      <div class="advice-box">선은 시길의 '목소리'입니다. 가늘고 정밀한 선은 섬세함을, 새긴 선은 강한 의지를 표현합니다.</div>
+      <div class="options-grid cols-2" id="trad-line"></div>
+    </div>
+
+    <!-- 대칭 방식 -->
+    <div class="options-section">
+      <div class="options-section-title">대칭 방식 — 시길의 균형 방식입니다</div>
+      <div class="advice-box">완전 대칭은 안정감과 균형을, 의도적 불균형은 방향성과 힘을 강조합니다.</div>
+      <div class="options-grid cols-1" id="trad-symmetry"></div>
+    </div>
+
+    <!-- 외곽 장식 -->
+    <div class="options-section">
+      <div class="options-section-title">외곽 장식 — 선택 사항입니다</div>
+      <div class="advice-box">외곽 장식은 시길의 테두리와 주변 요소를 결정합니다. 선택하지 않아도 기본 원이 적용됩니다.</div>
+      <div class="options-grid cols-2" id="trad-decoration"></div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn-next" id="btn-trad-next">다음 단계 →</button>
+  </div>
+</div>
+
+<!-- ========== MODERN OPTIONS SCREEN ========== -->
+<div id="screen-modern-options" class="screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="type">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">3 / 5</span>
+  </div>
+  <div class="step-progress"><div class="step-progress-fill" style="width:60%"></div></div>
+
+  <div class="screen-content">
+    <div class="step-hero">
+      <div class="step-number">STEP 03 — 현대형</div>
+      <h2 class="step-title">세부 스타일을 설정하세요</h2>
+      <p class="step-advice">각 항목을 모두 선택해야 다음으로 넘어갈 수 있습니다. 각 선택지의 '더 보기'를 눌러 의미를 확인하세요.</p>
+    </div>
+
+    <div class="validation-error" id="modern-validation-error"></div>
+
+    <!-- 표현 스타일 -->
+    <div class="options-section">
+      <div class="options-section-title">표현 스타일 — 시길이 사람들에게 주는 첫 인상을 결정합니다</div>
+      <div class="advice-box">미니멀 로고형은 불필요한 요소를 걷어내고 핵심만 남깁니다. 배경화면이나 다른 앱에서 재활용하기 좋은 형태입니다.</div>
+      <div class="options-grid" id="modern-style"></div>
+    </div>
+
+    <!-- 선 스타일 -->
+    <div class="options-section">
+      <div class="options-section-title">선 스타일 — 현대형에서 선은 디자인 품질을 크게 좌우합니다</div>
+      <div class="advice-box">모노라인은 균일하고 세련됩니다. 발광선은 존재감이 강하며 네온 심볼형과 잘 어울립니다.</div>
+      <div class="options-grid cols-2" id="modern-line"></div>
+    </div>
+
+    <!-- 복잡도 -->
+    <div class="options-section">
+      <div class="options-section-title">복잡도 — 배경화면 용도를 고려해 신중하게 고르세요</div>
+      <div class="advice-box">잠금화면 배경이라면 심플을, 홈화면 배경이라면 밸런스를 추천합니다.</div>
+      <div class="options-grid cols-2" id="modern-complexity"></div>
+    </div>
+
+    <!-- 대칭 -->
+    <div class="options-section">
+      <div class="options-section-title">대칭 방식 — 시길의 균형과 구성 방식입니다</div>
+      <div class="advice-box">완전 대칭은 안정적이고 정제된 인상을 줍니다. 방사 대칭은 에너지가 퍼져나가는 느낌입니다.</div>
+      <div class="options-grid cols-1" id="modern-symmetry"></div>
     </div>
   </div>
-</section>
 
-<!-- ======================== ARCHIVE 화면 ======================== -->
-<section class="screen" id="screen-archive">
-  <div class="screen-header">
-    <button class="btn-back">←</button>
-    <h2>보관함</h2>
-    <span style="min-width:36px;"></span>
+  <div class="bottom-nav">
+    <button class="btn-next" id="btn-modern-next">다음 단계 →</button>
   </div>
-  <div class="archive-wrap">
-    <div class="archive-list" id="archive-list">
-      <!-- JS로 렌더링 -->
-    </div>
-    <br>
-    <button class="btn-secondary" id="btn-archive-home" style="width:100%;">홈으로 돌아가기</button>
-  </div>
-</section>
+</div>
 
-<!-- ======================== SETTINGS 화면 ======================== -->
-<section class="screen" id="screen-settings">
-  <div class="screen-header">
-    <button class="btn-back" id="btn-settings-back">←</button>
-    <h2>설정</h2>
-    <span style="min-width:36px;"></span>
+<!-- ========== MOOD SCREEN ========== -->
+<div id="screen-mood" class="screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="type">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">4 / 5</span>
   </div>
-  <div class="settings-wrap">
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">시길이란?</div>
-        <div class="settings-desc">온보딩 화면 다시 보기</div>
+  <div class="step-progress"><div class="step-progress-fill" style="width:80%"></div></div>
+
+  <div class="screen-content">
+    <div class="step-hero">
+      <div class="step-number">STEP 04</div>
+      <h2 class="step-title">분위기를 선택하세요</h2>
+      <p class="step-advice">분위기는 시길의 색상, 배경, 광채를 결정합니다. 의도의 색을 입히는 단계입니다.</p>
+      <button class="btn-more" data-target="mood-more">▼ 더 보기</button>
+      <div class="more-content" id="mood-more">
+        <p>분위기 테마는 선택한 모든 요소에 색상과 에너지를 씌웁니다. 같은 구조와 상징이라도 분위기에 따라 완전히 다른 인상이 됩니다.</p>
+        <p>어두운 오컬트 느낌을 원한다면 <strong>흑요석 다크</strong>를, 고요하고 달빛 같은 느낌을 원한다면 <strong>월광 실버</strong>를 선택하세요. 강렬하고 미래적인 인상에는 <strong>네온 아스트랄</strong>이 잘 어울립니다.</p>
       </div>
-      <button class="btn-ghost" id="btn-reset-onboarding">보기 →</button>
     </div>
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">앱 버전</div>
-        <div class="settings-desc">CREOSIGIL v1.0</div>
-      </div>
+
+    <div class="mood-grid" id="mood-options"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn-next" id="btn-mood-next">시길 생성 시작 →</button>
+  </div>
+</div>
+
+<!-- ========== GENERATION SCREEN ========== -->
+<div id="screen-generation" class="screen generation-screen">
+  <div class="gen-logo">CREOSIGIL</div>
+  <div class="gen-canvas-wrap">
+    <canvas id="gen-canvas" width="600" height="600"></canvas>
+  </div>
+  <div class="gen-status">시길 생성 중</div>
+  <div class="gen-progress-wrap">
+    <div class="gen-progress-bar" id="gen-progress-bar" style="width:0%"></div>
+  </div>
+  <div class="gen-progress-text" id="gen-progress-text">0%</div>
+  <div class="gen-subtitle">
+    당신의 의도를 형태로 번역하고 있습니다<br>
+    잠시만 기다려주세요
+  </div>
+</div>
+
+<!-- ========== EDIT SCREEN ========== -->
+<div id="screen-edit" class="screen edit-screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="mood">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">편집</span>
+  </div>
+
+  <!-- Canvas Preview -->
+  <div class="edit-canvas-section">
+    <div class="canvas-ratio-selector">
+      <button class="ratio-btn active" data-ratio="hd">HD</button>
+      <button class="ratio-btn" data-ratio="qhd">QHD</button>
+      <button class="ratio-btn" data-ratio="4k">4K</button>
     </div>
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">저장 기록 삭제</div>
-        <div class="settings-desc">보관함의 모든 기록을 삭제합니다</div>
-      </div>
-      <button class="btn-ghost" onclick="if(confirm('모든 기록을 삭제하시겠습니까?')){localStorage.removeItem('creosigil_history');app.historyList=[];app._renderHistory();app._showToast('삭제 완료');}">삭제</button>
+    <div class="edit-canvas-preview">
+      <canvas id="edit-canvas" width="480" height="854"></canvas>
     </div>
   </div>
-</section>
 
-<!-- ======================== JS ======================== -->
+  <div class="screen-content" style="padding-top:0;">
+    <!-- Scale -->
+    <div class="controls-section">
+      <div class="controls-title">✦ 시길 크기 및 효과</div>
+      <div class="control-row">
+        <span class="control-label">크기</span>
+        <input type="range" class="control-slider" id="ctrl-scale" min="0" max="100" value="70">
+        <span class="control-value" id="ctrl-scale-val">70</span>
+      </div>
+      <div class="control-row">
+        <span class="control-label">광채</span>
+        <input type="range" class="control-slider" id="ctrl-glow" min="0" max="100" value="60">
+        <span class="control-value" id="ctrl-glow-val">60</span>
+      </div>
+      <div class="control-row">
+        <span class="control-label">선 굵기</span>
+        <input type="range" class="control-slider" id="ctrl-lineweight" min="0" max="100" value="40">
+        <span class="control-value" id="ctrl-lineweight-val">40</span>
+      </div>
+    </div>
+
+    <!-- Color -->
+    <div class="controls-section">
+      <div class="controls-title">✦ 시길 색상</div>
+      <div class="color-swatches" id="sigil-colors"></div>
+    </div>
+
+    <!-- Background -->
+    <div class="controls-section">
+      <div class="controls-title">✦ 배경</div>
+      <div class="bg-swatches" id="bg-swatches"></div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn-next" id="btn-edit-save">저장&공유 화면으로 →</button>
+  </div>
+</div>
+
+<!-- ========== SAVE SCREEN ========== -->
+<div id="screen-save" class="screen save-screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="edit">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">저장&공유</span>
+  </div>
+
+  <div class="save-preview-section">
+    <div class="save-title font-subtitle">나만의 시길</div>
+    <div class="save-preview-frame">
+      <canvas id="save-canvas" width="480" height="854"></canvas>
+    </div>
+    <div class="save-meta">
+      <div class="save-meta-name">CREOSIGIL</div>
+      <div class="save-meta-info">의도를 상징으로 완성하다</div>
+    </div>
+  </div>
+
+  <!-- Resolution presets -->
+  <div class="res-presets">
+    <div class="res-preset" data-idx="0">HD<br><small style="font-size:8px;opacity:0.6;">1080×1920</small></div>
+    <div class="res-preset" data-idx="1">QHD<br><small style="font-size:8px;opacity:0.6;">1440×2560</small></div>
+    <div class="res-preset" data-idx="2">4K<br><small style="font-size:8px;opacity:0.6;">2160×3840</small></div>
+  </div>
+
+  <!-- Save Actions -->
+  <div class="save-actions">
+    <button class="save-btn primary-save" id="btn-save-wallpaper">
+      <span class="save-btn-icon">🖼</span>
+      <div class="save-btn-info">
+        <div class="save-btn-name">배경화면 PNG 저장</div>
+        <div class="save-btn-desc">배경 포함 고화질 이미지</div>
+      </div>
+    </button>
+    <button class="save-btn" id="btn-save-transparent">
+      <span class="save-btn-icon">⬜</span>
+      <div class="save-btn-info">
+        <div class="save-btn-name">투명 PNG 저장</div>
+        <div class="save-btn-desc">배경 없는 투명 이미지 — 다른 앱에서 사용</div>
+      </div>
+    </button>
+    <button class="save-btn" id="btn-save-svg">
+      <span class="save-btn-icon">◈</span>
+      <div class="save-btn-info">
+        <div class="save-btn-name">SVG 저장</div>
+        <div class="save-btn-desc">벡터 파일 — 크기 제한 없이 사용</div>
+      </div>
+    </button>
+    <button class="save-btn" id="btn-share">
+      <span class="save-btn-icon">⬆</span>
+      <div class="save-btn-info">
+        <div class="save-btn-name">공유하기</div>
+        <div class="save-btn-desc">다른 앱으로 직접 공유</div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Go to Archive -->
+  <div class="archive-link-section">
+    <button class="btn-go-archive" id="btn-go-archive">
+      ☽ 보관함으로 가기
+    </button>
+  </div>
+
+  <!-- New sigil button -->
+  <div style="padding: 0 20px 16px;">
+    <button class="btn-secondary" id="btn-save-new" style="width:100%;">
+      ✦ 새 시길 만들기
+    </button>
+  </div>
+
+  <!-- Wallpaper Setup Guide -->
+  <div class="wallpaper-guide">
+    <div class="guide-title">✦ 배경화면으로 설정하는 방법</div>
+    <div class="guide-tabs">
+      <div class="guide-tab active" data-os="ios">아이폰</div>
+      <div class="guide-tab" data-os="android">안드로이드</div>
+    </div>
+    <div class="guide-steps active" id="guide-ios">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <span>위 'PNG 저장' 버튼을 눌러 이미지를 저장합니다.</span>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <span>사진 앱에서 저장된 시길을 엽니다.</span>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <span>왼쪽 하단 공유 버튼 → '배경화면으로 사용'을 선택합니다.</span>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <span>잠금화면, 홈화면 또는 둘 다 선택 후 완료.</span>
+      </div>
+    </div>
+    <div class="guide-steps" id="guide-android">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <span>위 'PNG 저장' 버튼을 눌러 이미지를 저장합니다.</span>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <span>갤러리 앱에서 저장된 시길을 엽니다.</span>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <span>메뉴(⋮) → '배경화면으로 설정'을 선택합니다.</span>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <span>잠금화면, 홈화면 또는 둘 다 선택 후 완료.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LIBRARY SCREEN ========== -->
+<div id="screen-library" class="screen library-screen">
+  <div class="app-header">
+    <button class="btn-back" data-target="home">←</button>
+    <span class="logo-small">CREOSIGIL</span>
+    <span class="step-indicator">보관함</span>
+  </div>
+
+  <div class="screen-content">
+    <div class="step-hero">
+      <div class="step-number">MY ARCHIVE</div>
+      <h2 class="step-title">나의 시길 보관함</h2>
+      <p class="step-advice">최근 20개의 시길이 저장됩니다. 탭하면 다시 저장하거나 편집할 수 있습니다.</p>
+    </div>
+    <div class="library-grid" id="library-grid"></div>
+  </div>
+</div>
+
+<!-- ========== QR MODAL ========== -->
+<div id="qr-modal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">QR 코드 생성기</div>
+    <div class="modal-subtitle">URL 또는 텍스트를 입력하면 QR 코드를 생성합니다</div>
+    <div class="qr-container">
+      <input type="text" id="qr-input" placeholder="URL 또는 텍스트 입력..." value="">
+      <div id="qr-canvas-wrap" class="qr-canvas-wrap"></div>
+      <div class="qr-actions">
+        <button class="btn-qr-gen" id="btn-qr-gen">QR 생성</button>
+        <button class="btn-qr-download" id="btn-qr-download" title="다운로드">↓</button>
+      </div>
+    </div>
+    <button class="btn-modal-close" id="btn-qr-close">닫기</button>
+  </div>
+</div>
+
+<!-- ========== TOOLTIP SHEET ========== -->
+<div id="tooltip-sheet" class="tooltip-sheet">
+  <div class="tooltip-content">
+    <div class="modal-handle"></div>
+    <div class="tooltip-title" id="tooltip-title"></div>
+    <div class="tooltip-body" id="tooltip-body"></div>
+    <button class="btn-tooltip-close" id="btn-tooltip-close">확인</button>
+  </div>
+</div>
+
+<!-- ========== PWA INSTALL BANNER ========== -->
+<div id="install-banner" class="install-banner">
+  <div class="install-banner-text">
+    <strong>CREOSIGIL</strong>을 홈 화면에 설치하면<br>앱처럼 사용할 수 있습니다
+  </div>
+  <button class="btn-install" id="btn-install">설치</button>
+  <button class="btn-install-dismiss" id="btn-install-dismiss">✕</button>
+</div>
+
+<!-- Scripts -->
 <script src="js/data.js"></script>
 <script src="js/sigil-engine.js"></script>
 <script src="js/app.js"></script>
-<script>
-  // 목적 카드 렌더링 (DOM 로드 후)
-  document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.querySelector('.purpose-grid');
-    if (grid && window.APP_DATA) {
-      grid.innerHTML = APP_DATA.purposes.map(p => `
-        <div class="purpose-card option-card" data-group="purpose" data-value="${p.id}" data-multi="true">
-          <span class="purpose-icon">${p.icon}</span>
-          <span class="purpose-label">${p.label}</span>
-          <span class="purpose-desc">${p.desc}</span>
-        </div>
-      `).join('');
-    }
-  });
 
-  // Service Worker 등록
+<script>
+  // Service Worker registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(e => console.log('SW 등록 실패', e));
+      navigator.serviceWorker.register('sw.js').catch(() => {});
     });
   }
+
+  // More buttons (for static elements)
+  document.querySelectorAll('.btn-more').forEach(btn => {
+    if (btn.dataset.target) {
+      btn.addEventListener('click', function() {
+        const target = document.getElementById(this.dataset.target);
+        if (!target) return;
+        const isOpen = target.classList.toggle('open');
+        this.textContent = isOpen ? '▲ 간략히 보기' : '▼ 더 보기';
+      });
+    }
+  });
 </script>
 </body>
 </html>
