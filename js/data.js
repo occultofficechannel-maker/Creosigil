@@ -1,181 +1,203 @@
-// CREOSIGIL — Data: purposes, styles, moods, advice texts
+/**
+ * CREOSIGIL - 데이터 모듈
+ * 목적, 스타일, 분위기 데이터 정의
+ */
 
 const PURPOSES = [
-  { id: 'protection', icon: '🛡', name: '보호', desc: '외부 기운 차단, 감정 소모 방지', advice: '보호의 시길은 경계를 세웁니다. 무엇으로부터 자신을 지키고 싶은지 선명하게 생각하세요.' },
-  { id: 'purification', icon: '✨', name: '정화', desc: '오래된 감정, 부정적 에너지 해소', advice: '정화는 덜어내는 행위입니다. 지금 놓아야 할 것이 무엇인지 떠올리며 선택하세요.' },
-  { id: 'prosperity', icon: '🌿', name: '번영', desc: '풍요, 기회, 흐름의 활성화', advice: '번영은 강요가 아닌 열림입니다. 받아들일 준비가 된 마음으로 시작하세요.' },
-  { id: 'focus', icon: '🎯', name: '집중', desc: '목표 명료화, 잡념 해소, 몰입', advice: '집중의 시길은 단순할수록 강합니다. 하나의 목표만 담으세요.' },
-  { id: 'healing', icon: '💜', name: '회복', desc: '몸과 마음의 치유, 재생', advice: '회복은 시간이 필요합니다. 이 시길은 그 과정을 함께 담아냅니다.' },
-  { id: 'blocking', icon: '🔒', name: '차단', desc: '특정 관계·영향·기운 봉인', advice: '차단은 강한 의지를 요합니다. 무엇을 끊어내고 싶은지 명확히 정하세요.' },
-  { id: 'connection', icon: '🌙', name: '인연', desc: '관계 연결, 좋은 만남 초대', advice: '인연의 시길은 열린 마음에서 시작됩니다. 어떤 관계를 원하는지 생각하세요.' },
-  { id: 'intuition', icon: '👁', name: '직관', desc: '내면의 목소리 강화, 통찰', advice: '직관은 내면에서 옵니다. 고요한 마음으로 선택에 집중하세요.' },
+  { id: 'protection', name: '보호', desc: '외부 기운 차단', icon: '🛡', symbol: '△' },
+  { id: 'purification', name: '정화', desc: '부정적 에너지 제거', icon: '✦', symbol: '○' },
+  { id: 'prosperity', name: '번영', desc: '풍요와 성공', icon: '◈', symbol: '☆' },
+  { id: 'focus', name: '집중', desc: '목표와 의지', icon: '◎', symbol: '→' },
+  { id: 'healing', name: '회복', desc: '치유와 재생', icon: '❂', symbol: '∞' },
+  { id: 'block', name: '차단', desc: '특정 에너지 봉인', icon: '⊗', symbol: '✕' },
+  { id: 'love', name: '인연', desc: '관계와 연결', icon: '◇', symbol: '♡' },
+  { id: 'intuition', name: '직관', desc: '내면의 지혜', icon: '⌬', symbol: '⟨⟩' }
 ];
 
-const TRAD_STRUCTURES = [
-  { id: 'circle_seal', icon: '⭕', name: '원형 인장형', desc: '원을 기반으로 한 고전적 봉인 구조. 가장 안정적이고 완결된 인상.', detail: '원형 인장은 시길의 가장 기본적인 형태로, 완전함과 보호를 상징합니다. 동서양 마법 전통에서 모두 쓰이며, 경계를 세우고 의도를 봉인하는 힘이 있습니다.' },
-  { id: 'magic_circle', icon: '🔮', name: '마법진형', desc: '다층 구조의 의식 원진. 복잡하고 신비로운 에너지장.', detail: '마법진은 여러 겹의 원과 상징이 겹쳐 이루어집니다. 복잡한 의도나 여러 목적을 하나의 강력한 구조로 통합할 때 적합합니다.' },
-  { id: 'seal_gate', icon: '🗝', name: '봉인문형', desc: '특정 기운이나 존재를 봉인·차단하는 형태.', detail: '봉인문은 문을 닫는 행위를 상징합니다. 차단, 보호, 결계의 의도에 가장 적합하며 강한 경계를 만들어냅니다.' },
-  { id: 'rune_combo', icon: '𝄞', name: '룬 결합형', desc: '고대 룬 문자를 결합해 의미를 층위화.', detail: '룬은 고대 북유럽의 신성한 문자로, 각각 고유한 의미와 힘을 지닙니다. 여러 룬을 결합해 의도를 다층적으로 표현할 수 있습니다.' },
-  { id: 'symmetric', icon: '⚖', name: '의식 대칭형', desc: '좌우·상하 완전 대칭의 의식 구조. 균형과 안정.', detail: '대칭은 균형과 조화를 나타냅니다. 회복, 정화, 집중처럼 안정을 원하는 의도에 잘 어울립니다.' },
-  { id: 'moon_bind', icon: '🌕', name: '월상 결속형', desc: '달의 위상을 반영한 천체적 봉인 구조.', detail: '달은 변화와 주기, 내면의 힘을 상징합니다. 달의 위상을 담은 시길은 흐름과 타이밍을 의도에 연결합니다.' },
-];
+const PURPOSE_ADVICE = {
+  1: '하나의 목적에 집중할수록 시길이 더 선명하고 강해집니다.',
+  2: '두 목적이 연결되어 복합적인 시길이 만들어집니다. 중심 의도를 먼저 확인하세요.',
+  3: '세 목적이 결합됩니다. 가장 중요한 하나가 중심이 되어야 해요.',
+  over: '⚠️ 여러 목적이 섞이면 시길이 복잡해집니다. 1~2개를 권장합니다.'
+};
 
-const MODERN_STYLES = [
-  { id: 'minimal_logo', icon: '◻', name: '미니멀 로고형', desc: '핵심 형태만 남긴 정제된 구조. 세련되고 고급스러움.', detail: '미니멀 로고형은 불필요한 요소를 모두 제거하고 본질만 남깁니다. 배경화면과 다른 앱에서 재사용하기 가장 편리한 형태입니다.' },
-  { id: 'geometric', icon: '◇', name: '기하학형', desc: '삼각·육각·원 등 도형 중심의 정교한 구성.', detail: '기하학은 수학적 아름다움과 이성적 질서를 담습니다. 집중, 균형, 목표 달성의 의도와 잘 어울립니다.' },
-  { id: 'neon_symbol', icon: '⚡', name: '네온 심볼형', desc: '발광 효과 중심의 강렬하고 미래적인 인상.', detail: '네온은 빛과 에너지를 가시화합니다. 강한 존재감과 목표 달성 에너지를 시각화하는 데 적합합니다.' },
-  { id: 'emblem', icon: '🏅', name: '엠블럼형', desc: '방패·원형 배지 형태의 권위감 있는 구성.', detail: '엠블럼은 소속감과 정체성을 담습니다. 자신감, 존재감, 번영의 의도를 강하게 표현합니다.' },
-  { id: 'abstract', icon: '〰', name: '추상 아이콘형', desc: '자유로운 선 조합의 개성 있는 구성.', detail: '추상은 규칙을 벗어난 자유로운 표현입니다. 독창적인 개성을 원하거나 직관적 의도를 담고 싶을 때 선택하세요.' },
-  { id: 'crystal', icon: '💎', name: '크리스탈형', desc: '유리·보석 결정체 구조의 신비롭고 고급스러운 인상.', detail: '크리스탈은 정화와 투명함, 고급감을 상징합니다. 에너지 정화, 직관, 고급스러운 미감을 원할 때 선택하세요.' },
-];
+const TRADITIONAL_OPTIONS = {
+  structure: {
+    title: '봉인 구조',
+    advice: '시길의 기본 형태를 결정합니다. 원형 인장은 가장 안정적인 전통 형태입니다.',
+    items: [
+      { id: 'circle-seal', name: '원형 인장', desc: '원을 기반으로 한 봉인 형태' },
+      { id: 'magic-circle', name: '마법진', desc: '다층 원형 구조의 의식 문양' },
+      { id: 'seal-gate', name: '봉인문', desc: '에너지를 가두는 봉인 형태' },
+      { id: 'rune-combo', name: '룬 결합', desc: '룬 문자를 조합한 상징' },
+      { id: 'ritual-sym', name: '의식 대칭', desc: '완전 대칭의 의식 형태' },
+      { id: 'moon-bond', name: '월상 결속', desc: '달 위상을 반영한 형태' }
+    ]
+  },
+  density: {
+    title: '상징의 밀도',
+    advice: '처음 시길을 만든다면 중간 밀도를 권장합니다.',
+    items: [
+      { id: 'simple', name: '단순', desc: '최소 요소, 강한 인상' },
+      { id: 'medium', name: '중간', desc: '균형 잡힌 구성' },
+      { id: 'complex', name: '복합', desc: '세밀하고 풍부한 구성' },
+      { id: 'multi', name: '다층', desc: '여러 층이 겹친 형태' }
+    ]
+  },
+  lineStyle: {
+    title: '선 스타일',
+    advice: '선의 종류가 시길의 감성을 크게 좌우합니다.',
+    items: [
+      { id: 'thin-ink', name: '가는 잉크선', desc: '섬세하고 정밀함' },
+      { id: 'carved', name: '새긴 선', desc: '돌에 새긴 듯 강함' },
+      { id: 'rough', name: '거친 필사선', desc: '손으로 쓴 유기적 느낌' },
+      { id: 'sharp', name: '날카로운 각선', desc: '단호하고 결단적' }
+    ]
+  },
+  symmetry: {
+    title: '대칭 방식',
+    advice: '완전 대칭은 안정감을, 부분 대칭은 긴장감을 줍니다.',
+    items: [
+      { id: 'full-sym', name: '완전 대칭', desc: '수직·수평 완전 균형' },
+      { id: 'partial-sym', name: '반대칭', desc: '한 축만 대칭' },
+      { id: 'intentional', name: '의식적 불균형', desc: '의도적 비대칭' }
+    ]
+  },
+  decoration: {
+    title: '외곽 장식',
+    advice: '외곽 장식은 시길에 의식적 경계를 더합니다.',
+    items: [
+      { id: 'no-deco', name: '없음', desc: '순수한 형태만' },
+      { id: 'single-ring', name: '단일 링', desc: '하나의 원으로 경계' },
+      { id: 'double-ring', name: '이중 링', desc: '두 겹의 원형 경계' },
+      { id: 'dot-ring', name: '룬 점열', desc: '점과 룬 기호 배치' },
+      { id: 'star-ring', name: '별자리 점', desc: '별자리 패턴 배치' }
+    ]
+  }
+};
 
-const TRAD_SYMBOLS = [
-  { id: 'triangle', icon: '△', name: '삼각', desc: '방향성, 불꽃, 의지' },
-  { id: 'circle', icon: '○', name: '원', desc: '완전함, 순환, 보호' },
-  { id: 'grid', icon: '⊞', name: '사각/격자', desc: '안정, 구조, 지상' },
-  { id: 'stars', icon: '✦', name: '점·별', desc: '천체, 빛, 방향' },
-  { id: 'crescent', icon: '☽', name: '달', desc: '주기, 내면, 여성성' },
-  { id: 'seal_line', icon: '〓', name: '봉인선', desc: '차단, 결계, 경계' },
-];
-
-const TRAD_DENSITY = [
-  { id: 'simple', name: '단순', desc: '요소 1~2개, 여백 강조', icon: '·' },
-  { id: 'medium', name: '중간', desc: '균형 잡힌 구성', icon: '⊙' },
-  { id: 'complex', name: '복합', desc: '다층적 상징 구성', icon: '⊛' },
-  { id: 'multilayer', name: '다층', desc: '겹겹이 쌓인 구조', icon: '⊕' },
-];
-
-const TRAD_LINE_STYLES = [
-  { id: 'thin_ink', name: '가는 잉크선', desc: '섬세하고 정밀한', icon: '—' },
-  { id: 'carved', name: '새긴 선', desc: '강하고 각인된 느낌', icon: '▬' },
-  { id: 'rough', name: '거친 필사선', desc: '유기적이고 손으로 쓴 느낌', icon: '〰' },
-  { id: 'sharp', name: '날카로운 각선', desc: '단호하고 결단적인', icon: '⟨⟩' },
-];
-
-const TRAD_SYMMETRY = [
-  { id: 'full', name: '완전 대칭', desc: '수직·수평·방사 완전 균형' },
-  { id: 'half', name: '반대칭', desc: '일부 대칭, 자연스러운 변주' },
-  { id: 'intentional', name: '의도적 불균형', desc: '방향성이 있는 구조' },
-];
-
-const TRAD_DECORATIONS = [
-  { id: 'outer_ring', name: '외곽 원', desc: '단일 또는 이중 원 테두리', icon: '◯' },
-  { id: 'rune_dots', name: '룬 점열', desc: '점이나 작은 기호의 열', icon: '···' },
-  { id: 'star_dots', name: '별자리 점', desc: '천체의 배치를 참고한 점', icon: '✦✦' },
-  { id: 'seal_cross', name: '결계선', desc: '교차하는 봉인 라인', icon: '✛' },
-];
-
-const MODERN_LINE_STYLES = [
-  { id: 'monoline', name: '모노라인', desc: '균일한 두께의 단일 선', icon: '—' },
-  { id: 'double', name: '이중선', desc: '두 선이 나란히 구성', icon: '═' },
-  { id: 'glow_line', name: '발광선', desc: '빛이 나는 네온 효과', icon: '〜' },
-  { id: 'chrome', name: '크롬 메탈선', desc: '금속 광택이 느껴지는 선', icon: '≡' },
-];
-
-const MODERN_COMPLEXITY = [
-  { id: 'simple', name: '심플', desc: '요소 적고 여백 많음' },
-  { id: 'balance', name: '밸런스', desc: '구조와 장식의 균형' },
-  { id: 'detailed', name: '정교', desc: '세부 묘사 풍부' },
-  { id: 'elaborate', name: '화려함', desc: '장식 강화, 강렬한 인상' },
-];
-
-const MODERN_SYMMETRY = [
-  { id: 'full', name: '완전 대칭', desc: '수직·수평·방사 완전 균형' },
-  { id: 'left_right', name: '좌우 대칭', desc: '좌우만 대칭, 상하 자유' },
-  { id: 'radial', name: '방사 대칭', desc: '중심에서 방사형으로 균형' },
-];
+const MODERN_OPTIONS = {
+  style: {
+    title: '표현 스타일',
+    advice: '어떤 시각 언어로 표현할지 결정합니다.',
+    items: [
+      { id: 'minimal-logo', name: '미니멀 로고', desc: '불필요한 요소 제거' },
+      { id: 'geometric', name: '기하학형', desc: '도형 중심 구성' },
+      { id: 'neon-symbol', name: '네온 심볼', desc: '발광 효과 중심' },
+      { id: 'emblem', name: '엠블럼형', desc: '배지·원형 배지 형태' },
+      { id: 'abstract', name: '추상 아이콘', desc: '자유로운 선 조합' },
+      { id: 'crystal', name: '유리 크리스탈', desc: '결정체 구조 느낌' }
+    ]
+  },
+  form: {
+    title: '형태 성향',
+    advice: '배경화면 용도라면 세로형 심볼이나 방사형을 추천합니다.',
+    items: [
+      { id: 'circle-center', name: '원형 중심', desc: '원을 기반으로 안정적' },
+      { id: 'vertical', name: '세로형 심볼', desc: '세로 화면에 최적화' },
+      { id: 'radial', name: '방사형', desc: '중심에서 퍼지는 구조' },
+      { id: 'badge', name: '배지형', desc: '완결된 인장 느낌' }
+    ]
+  },
+  tone: {
+    title: '시각 톤',
+    advice: '같은 스타일이라도 톤에 따라 느낌이 완전히 달라집니다.',
+    items: [
+      { id: 'clean-lux', name: '클린 럭스', desc: '여백과 정제, 고급스러움' },
+      { id: 'futuristic', name: '미래적 테크', desc: '날카롭고 디지털 감각' },
+      { id: 'dark-neon', name: '다크 네온', desc: '어두운 배경에 발광' },
+      { id: 'astral', name: '시린 아스트랄', desc: '우주·은빛 세계' }
+    ]
+  },
+  lineStyle: {
+    title: '선 스타일',
+    advice: '현대형은 선이 디자인 품질을 크게 좌우합니다.',
+    items: [
+      { id: 'monoline', name: '모노라인', desc: '균일한 두께의 단일 선' },
+      { id: 'double-line', name: '이중선', desc: '두 선이 나란히' },
+      { id: 'glow-line', name: '발광선', desc: '빛이 나는 네온 효과' },
+      { id: 'chrome', name: '크롬 메탈선', desc: '금속 광택 질감' }
+    ]
+  },
+  complexity: {
+    title: '복잡도',
+    advice: '배경화면 용도라면 심플~밸런스를 권장합니다.',
+    items: [
+      { id: 'simple', name: '심플', desc: '여백 중심, 빠른 인식' },
+      { id: 'balance', name: '밸런스', desc: '구조와 장식의 균형' },
+      { id: 'detailed', name: '정교', desc: '세부 묘사 풍부' },
+      { id: 'elaborate', name: '화려함', desc: '장식 강화' }
+    ]
+  }
+};
 
 const MOODS = [
   {
-    id: 'obsidian', name: '흑요석 다크', icon: '🖤',
-    desc: '검고 신비로운 오컬트 무드',
-    colors: { bg: '#070708', line: '#C8C0E8', glow: '#9B8FCC', accent: '#7B70B0', ambient: 'rgba(80, 60, 140, 0.15)' }
+    id: 'obsidian', name: '흑요석 다크', desc: '강렬한 보호',
+    bg: '#0a0a0f', line: '#d9cfff', glow: '#a992ff', secondary: '#1a1428'
   },
   {
-    id: 'moonlight', name: '월광 실버', icon: '🌙',
-    desc: '차갑고 고요한 달빛 무드',
-    colors: { bg: '#0A0D14', line: '#D4E0F0', glow: '#A8C0E0', accent: '#6890C0', ambient: 'rgba(100, 140, 200, 0.12)' }
+    id: 'moonlight', name: '월광 실버', desc: '직관과 정화',
+    bg: '#0c0e14', line: '#e8eeff', glow: '#8fa4d4', secondary: '#141826'
   },
   {
-    id: 'crimson', name: '심홍 봉인', icon: '🔴',
-    desc: '붉고 강렬한 봉인의 무드',
-    colors: { bg: '#0D0609', line: '#F0D0D8', glow: '#D06080', accent: '#A04060', ambient: 'rgba(160, 40, 70, 0.15)' }
+    id: 'crimson', name: '심홍 봉인', desc: '의지와 행동',
+    bg: '#120b0d', line: '#ffd9d9', glow: '#e05a7a', secondary: '#1e0f12'
   },
   {
-    id: 'sacred_white', name: '백색 정화', icon: '🤍',
-    desc: '맑고 순수한 정화의 무드',
-    colors: { bg: '#0E0E12', line: '#F0EEF8', glow: '#E0DCF4', accent: '#B0A8D8', ambient: 'rgba(180, 175, 220, 0.1)' }
+    id: 'sacred', name: '백색 정화', desc: '순수와 치유',
+    bg: '#f4f5f8', line: '#1b1e27', glow: '#6b7094', secondary: '#e8eaf0'
   },
   {
-    id: 'brass', name: '황동 각인', icon: '🟡',
-    desc: '고대의 황동 인장 무드',
-    colors: { bg: '#0C0A06', line: '#E8D890', glow: '#C8B850', accent: '#907830', ambient: 'rgba(160, 140, 40, 0.12)' }
+    id: 'bronze', name: '황동 각인', desc: '번영과 성공',
+    bg: '#0e0b07', line: '#f5e6b0', glow: '#c89b3c', secondary: '#1a1408'
   },
   {
-    id: 'neon_astral', name: '네온 아스트랄', icon: '💙',
-    desc: '우주적이고 강렬한 네온 무드',
-    colors: { bg: '#05080F', line: '#90D0FF', glow: '#60A8FF', accent: '#3070E0', ambient: 'rgba(60, 120, 240, 0.15)' }
+    id: 'neon', name: '네온 아스트랄', desc: '에너지 발산',
+    bg: '#090a14', line: '#d9e5ff', glow: '#38d5ff', secondary: '#0d0f1c'
   },
   {
-    id: 'minimal_lux', name: '미니멀 럭스', icon: '⬜',
-    desc: '정제된 고급스러운 미니멀 무드',
-    colors: { bg: '#0F0F12', line: '#D8D4EC', glow: '#B0A8D0', accent: '#7870A8', ambient: 'rgba(120, 115, 170, 0.08)' }
+    id: 'minimal', name: '미니멀 럭스', desc: '정제와 고급',
+    bg: '#111118', line: '#ffffff', glow: '#ccccee', secondary: '#1a1a24'
   },
   {
-    id: 'cosmic', name: '코스믹 블루', icon: '🔵',
-    desc: '심오하고 우주적인 블루 무드',
-    colors: { bg: '#04060E', line: '#8090D8', glow: '#6080C8', accent: '#3050A0', ambient: 'rgba(60, 80, 180, 0.15)' }
-  },
+    id: 'cosmic', name: '코스믹 바이올렛', desc: '신비와 탐구',
+    bg: '#0a071a', line: '#c8bbff', glow: '#7c5cff', secondary: '#14103a'
+  }
 ];
 
-const BACKGROUNDS = [
-  { id: 'pure_black', name: '순수 흑', color: '#000000', gradient: null },
-  { id: 'dark_gradient', name: '다크 그라디언트', color: '#0A0A14', gradient: 'radial-gradient(ellipse at center, #1A1030 0%, #050510 100%)' },
-  { id: 'deep_space', name: '딥 스페이스', color: '#020308', gradient: 'radial-gradient(ellipse at 30% 30%, #0A1030 0%, #020308 70%)' },
-  { id: 'obsidian', name: '흑요석', color: '#080810', gradient: 'linear-gradient(135deg, #120820 0%, #080810 50%, #0A0A18 100%)' },
-  { id: 'dark_forest', name: '어두운 숲', color: '#060C08', gradient: 'linear-gradient(160deg, #0A1410 0%, #060C08 100%)' },
-  { id: 'midnight_blue', name: '미드나잇 블루', color: '#040810', gradient: 'radial-gradient(ellipse at 70% 20%, #0A1428 0%, #040810 60%)' },
-];
-
-const ADVICE_TEXTS = {
-  purpose: {
-    single: '하나의 의도는 시길을 선명하게 만듭니다. 지금 가장 중심이 되는 목적을 골랐군요.',
-    double: '두 가지 의도를 선택했습니다. 시길이 복합적이 될 수 있습니다. 더 중요한 것을 생각해보세요.',
-    triple: '세 가지 의도는 시길을 복잡하게 만들 수 있습니다. 하나의 핵심 의도에 집중하면 더 강한 시길이 됩니다.',
-  },
-  structure: {
-    none: '시길의 기반 구조를 선택하세요. 모든 선택에 설명이 있으니 천천히 읽어보세요.',
-  },
-  density: {
-    none: '밀도는 시길의 복잡도를 결정합니다. 처음이라면 단순 또는 중간을 추천합니다.',
-  },
+// 목적별 전통형 추천 기본값
+const PURPOSE_TRADITIONAL_DEFAULT = {
+  protection:   { structure: 'circle-seal', density: 'medium', lineStyle: 'carved',  symmetry: 'full-sym', decoration: 'double-ring' },
+  purification: { structure: 'ritual-sym',  density: 'simple', lineStyle: 'thin-ink', symmetry: 'full-sym', decoration: 'single-ring' },
+  prosperity:   { structure: 'magic-circle',density: 'complex',lineStyle: 'thin-ink', symmetry: 'full-sym', decoration: 'star-ring' },
+  focus:        { structure: 'seal-gate',   density: 'medium', lineStyle: 'sharp',   symmetry: 'full-sym', decoration: 'single-ring' },
+  healing:      { structure: 'moon-bond',   density: 'simple', lineStyle: 'thin-ink', symmetry: 'full-sym', decoration: 'no-deco' },
+  block:        { structure: 'seal-gate',   density: 'complex',lineStyle: 'sharp',   symmetry: 'full-sym', decoration: 'double-ring' },
+  love:         { structure: 'circle-seal', density: 'medium', lineStyle: 'rough',   symmetry: 'partial-sym', decoration: 'dot-ring' },
+  intuition:    { structure: 'moon-bond',   density: 'simple', lineStyle: 'thin-ink', symmetry: 'partial-sym', decoration: 'no-deco' }
 };
 
-// Resolution presets
-const RESOLUTIONS = [
-  { id: 'hd', label: 'HD', width: 1080, height: 1920 },
-  { id: 'qhd', label: 'QHD', width: 1440, height: 2560 },
-  { id: '4k', label: '4K', width: 2160, height: 3840 },
-];
-
-// Default selections
-const DEFAULTS = {
-  trad: {
-    structure: 'circle_seal',
-    symbol: 'circle',
-    density: 'medium',
-    lineStyle: 'thin_ink',
-    symmetry: 'full',
-    decoration: 'outer_ring',
-  },
-  modern: {
-    style: 'minimal_logo',
-    lineStyle: 'monoline',
-    complexity: 'balance',
-    symmetry: 'full',
-  },
+// 목적별 현대형 추천 기본값
+const PURPOSE_MODERN_DEFAULT = {
+  protection:   { style: 'emblem',      form: 'circle-center', tone: 'futuristic', lineStyle: 'monoline',   complexity: 'balance' },
+  purification: { style: 'minimal-logo',form: 'vertical',      tone: 'clean-lux',  lineStyle: 'monoline',   complexity: 'simple' },
+  prosperity:   { style: 'geometric',   form: 'radial',        tone: 'astral',     lineStyle: 'chrome',     complexity: 'detailed' },
+  focus:        { style: 'minimal-logo',form: 'circle-center', tone: 'futuristic', lineStyle: 'monoline',   complexity: 'simple' },
+  healing:      { style: 'crystal',     form: 'vertical',      tone: 'astral',     lineStyle: 'double-line',complexity: 'balance' },
+  block:        { style: 'geometric',   form: 'badge',         tone: 'dark-neon',  lineStyle: 'glow-line',  complexity: 'balance' },
+  love:         { style: 'abstract',    form: 'radial',        tone: 'clean-lux',  lineStyle: 'double-line',complexity: 'simple' },
+  intuition:    { style: 'crystal',     form: 'vertical',      tone: 'astral',     lineStyle: 'glow-line',  complexity: 'simple' }
 };
 
-// Validation groups for each step (by type)
-const TRAD_REQUIRED_GROUPS = ['structure', 'symbol', 'density', 'lineStyle', 'symmetry'];
-const MODERN_REQUIRED_GROUPS = ['style', 'lineStyle', 'complexity', 'symmetry'];
+// 목적별 기본 분위기
+const PURPOSE_MOOD_DEFAULT = {
+  protection: 'obsidian',
+  purification: 'sacred',
+  prosperity: 'bronze',
+  focus: 'minimal',
+  healing: 'moonlight',
+  block: 'crimson',
+  love: 'cosmic',
+  intuition: 'moonlight'
+};

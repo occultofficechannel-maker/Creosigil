@@ -1,24 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="110" fill="#0A0A0F"/>
-  <!-- Outer ring -->
-  <circle cx="256" cy="256" r="210" fill="none" stroke="#A992FF" stroke-width="6" opacity="0.8"/>
-  <!-- Second ring -->
-  <circle cx="256" cy="256" r="170" fill="none" stroke="#A992FF" stroke-width="3" opacity="0.45"/>
-  <!-- Inner ring -->
-  <circle cx="256" cy="256" r="110" fill="none" stroke="#C8BBFF" stroke-width="4" opacity="0.65"/>
-  <!-- Cross lines -->
-  <line x1="256" y1="72" x2="256" y2="440" stroke="#A992FF" stroke-width="2.5" opacity="0.35"/>
-  <line x1="72" y1="256" x2="440" y2="256" stroke="#A992FF" stroke-width="2.5" opacity="0.35"/>
-  <!-- Diagonal lines -->
-  <line x1="108" y1="108" x2="404" y2="404" stroke="#A992FF" stroke-width="1.5" opacity="0.2"/>
-  <line x1="404" y1="108" x2="108" y2="404" stroke="#A992FF" stroke-width="1.5" opacity="0.2"/>
-  <!-- Center glow -->
-  <circle cx="256" cy="256" r="32" fill="#A992FF" opacity="0.25"/>
-  <circle cx="256" cy="256" r="18" fill="#A992FF" opacity="0.5"/>
-  <circle cx="256" cy="256" r="8" fill="#C8BBFF" opacity="0.95"/>
-  <!-- Outer dots -->
-  <circle cx="256" cy="46" r="6" fill="#A992FF" opacity="0.7"/>
-  <circle cx="256" cy="466" r="6" fill="#A992FF" opacity="0.7"/>
-  <circle cx="46" cy="256" r="6" fill="#A992FF" opacity="0.7"/>
-  <circle cx="466" cy="256" r="6" fill="#A992FF" opacity="0.7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#0a0a0f"/>
+  <!-- 외곽 이중 원 -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="#d9cfff" stroke-width="3" opacity="0.6"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#a992ff" stroke-width="2" opacity="0.4"/>
+  <!-- 내부 C+S 모노그램 -->
+  <!-- C -->
+  <path d="M 220 180 A 80 80 0 1 0 220 332" fill="none" stroke="#d9cfff" stroke-width="14" stroke-linecap="round"/>
+  <!-- S 곡선 -->
+  <path d="M 256 190 C 300 190 320 216 290 256 C 260 296 280 322 320 322" fill="none" stroke="#a992ff" stroke-width="10" stroke-linecap="round"/>
+  <!-- 중심 글로우 점 -->
+  <circle cx="256" cy="256" r="8" fill="#c8bbff" opacity="0.9"/>
+  <!-- 방사선 4개 -->
+  <line x1="256" y1="60" x2="256" y2="100" stroke="#a992ff" stroke-width="2" opacity="0.5"/>
+  <line x1="256" y1="412" x2="256" y2="452" stroke="#a992ff" stroke-width="2" opacity="0.5"/>
+  <line x1="60" y1="256" x2="100" y2="256" stroke="#a992ff" stroke-width="2" opacity="0.5"/>
+  <line x1="412" y1="256" x2="452" y2="256" stroke="#a992ff" stroke-width="2" opacity="0.5"/>
 </svg>

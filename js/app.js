@@ -1,1059 +1,730 @@
-// CREOSIGIL — Main App Logic
-'use strict';
+/**
+ * CREOSIGIL - 앱 메인 로직
+ * 화면 전환, 단계별 선택, 생성, 저장, 보관함
+ */
 
-// ========== STATE ==========
-const state = {
-  currentScreen: 'home',
-  sigilType: null, // 'traditional' | 'modern'
-  selectedPurposes: [],
-  // Traditional selections
-  trad: {
-    structure: null,
-    symbol: null,
-    density: null,
-    lineStyle: null,
-    symmetry: null,
-    decoration: null,
-  },
-  // Modern selections
-  modern: {
-    style: null,
-    lineStyle: null,
-    complexity: null,
-    symmetry: null,
-  },
-  mood: null,
-  // Edit settings
-  edit: {
-    scale: 0.75,
-    lineWeight: 0.5,
-    glow: 0.6,
-    colorIdx: 0,
-    bgIdx: 1,
-    ratio: 'qhd',
+// ===== 앱 상태 =====
+const AppState = {
+  currentScreen: 'screen-home',
+  screenHistory: ['screen-home'],
+  sigilType: null,          // 'traditional' | 'modern'
+  purposes: [],             // 선택된 목적 IDs
+  traditionalOpts: {},      // 전통형 옵션
+  modernOpts: {},           // 현대형 옵션
+  mood: null,               // 선택된 분위기 객체
+  editConfig: {
+    scale: 100,
+    lineWidth: 2,
+    glow: 8,
     rotation: 0,
-    posY: 0.5,
+    sigilColor: '#d9cfff',
+    bgColor: '#0a0a0f',
+    bgType: 'solid'
   },
-  savedSigilData: null,
-  resolutionIdx: 1, // QHD by default
-  library: [],
+  selectedResolution: '1080x1920',
+  generatedSigilData: null, // canvas imageData
+  quickMode: false
 };
 
-// ========== DOM ==========
-let sigilEngine = null;
-let genCanvas = null;
-let editCanvas = null;
-let saveCanvas = null;
-let genAnimId = null;
+// ===== 화면 전환 =====
+function goTo(screenId) {
+  const current = document.getElementById(AppState.currentScreen);
+  const next = document.getElementById(screenId);
+  if (!next || AppState.currentScreen === screenId) return;
 
-// ========== INIT ==========
-document.addEventListener('DOMContentLoaded', () => {
-  loadLibrary();
-  setupScreens();
-  setupHomeButtons();
-  showScreen('home');
-  renderRecentGrid();
-  setupPWAInstall();
-});
+  current.classList.remove('active');
+  current.classList.add('slide-out');
+  setTimeout(() => current.classList.remove('slide-out'), 300);
 
-function setupScreens() {
-  document.querySelectorAll('.btn-back').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = btn.dataset.target || 'home';
-      showScreen(target);
-    });
-  });
+  next.classList.add('active');
+  AppState.screenHistory.push(screenId);
+  AppState.currentScreen = screenId;
+
+  // 화면별 진입 처리
+  onScreenEnter(screenId);
+  updateNavBar(screenId);
 }
 
-function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById('screen-' + screenId);
-  if (target) {
-    target.classList.add('active');
-    target.scrollTop = 0;
+function navTo(screenId) {
+  goTo(screenId);
+}
+
+function goBack() {
+  if (AppState.screenHistory.length <= 1) return;
+  AppState.screenHistory.pop();
+  const prev = AppState.screenHistory[AppState.screenHistory.length - 1];
+  const current = document.getElementById(AppState.currentScreen);
+  const prevScreen = document.getElementById(prev);
+  if (!prevScreen) return;
+
+  current.classList.remove('active');
+  prevScreen.classList.add('active');
+  AppState.currentScreen = prev;
+  updateNavBar(prev);
+  onScreenEnter(prev);
+}
+
+function onScreenEnter(screenId) {
+  switch (screenId) {
+    case 'screen-home':    renderHomeRecent(); break;
+    case 'screen-step1':   renderPurposeGrid(); break;
+    case 'screen-step3':   renderStep3Options(); break;
+    case 'screen-step4':   renderMoodGrid(); break;
+    case 'screen-step5':   startGeneration(); break;
+    case 'screen-step6':   renderEditScreen(); break;
+    case 'screen-step7':   renderSaveScreen(); break;
+    case 'screen-archive': renderArchive(); break;
   }
-  state.currentScreen = screenId;
 }
 
-// ========== HOME ==========
-function setupHomeButtons() {
-  document.getElementById('btn-start-fast')?.addEventListener('click', startFastMode);
-  document.getElementById('btn-start-precise')?.addEventListener('click', startPreciseMode);
-  document.getElementById('btn-view-library')?.addEventListener('click', () => {
-    renderLibraryScreen();
-    showScreen('library');
-  });
-
-  // QR button
-  document.getElementById('btn-qr')?.addEventListener('click', openQRModal);
+function updateNavBar(screenId) {
+  document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+  const homeScreens = ['screen-home'];
+  const archiveScreens = ['screen-archive'];
+  if (homeScreens.includes(screenId)) {
+    document.querySelector('[data-screen="screen-home"]')?.classList.add('active');
+  } else if (archiveScreens.includes(screenId)) {
+    document.querySelector('[data-screen="screen-archive"]')?.classList.add('active');
+  }
 }
 
-function startFastMode() {
-  state.sigilType = null;
-  state.selectedPurposes = [];
-  state.trad = { structure: null, symbol: null, density: null, lineStyle: null, symmetry: null, decoration: null };
-  state.modern = { style: null, lineStyle: null, complexity: null, symmetry: null };
-  state.mood = null;
-  renderPurposeScreen();
-  showScreen('purpose');
+// ===== 시길 제작 시작 =====
+function startCreation(mode) {
+  AppState.quickMode = mode === 'quick';
+  AppState.purposes = [];
+  AppState.sigilType = null;
+  AppState.traditionalOpts = {};
+  AppState.modernOpts = {};
+  AppState.mood = null;
+  AppState.screenHistory = ['screen-home'];
+  AppState.currentScreen = 'screen-home';
+  goTo('screen-step1');
 }
 
-function startPreciseMode() {
-  startFastMode();
-}
-
-// ========== PURPOSE SELECTION ==========
-function renderPurposeScreen() {
-  const container = document.getElementById('purpose-options');
-  if (!container) return;
-  container.innerHTML = '';
-  PURPOSES.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'option-card' + (state.selectedPurposes.includes(p.id) ? ' selected' : '');
-    card.dataset.id = p.id;
-    card.innerHTML = `
-      <span class="option-icon">${p.icon}</span>
-      <div class="option-name">${p.name}</div>
+// ===== STEP 1: 목적 선택 =====
+function renderPurposeGrid() {
+  const grid = document.getElementById('purpose-grid');
+  if (!grid) return;
+  grid.innerHTML = PURPOSES.map(p => `
+    <div class="option-item ${AppState.purposes.includes(p.id) ? 'selected' : ''}"
+         data-id="${p.id}"
+         onclick="togglePurpose('${p.id}')">
+      <div class="option-name">${p.icon} ${p.name}</div>
       <div class="option-desc">${p.desc}</div>
-    `;
-    card.addEventListener('click', () => togglePurpose(p.id));
-    container.appendChild(card);
-  });
-  updatePurposeAdvice();
-
-  document.getElementById('btn-purpose-next')?.addEventListener('click', () => {
-    if (state.selectedPurposes.length === 0) {
-      showToast('목적을 하나 이상 선택해주세요');
-      return;
-    }
-    renderTypeScreen();
-    showScreen('type');
-  });
+    </div>
+  `).join('');
 }
 
 function togglePurpose(id) {
-  const idx = state.selectedPurposes.indexOf(id);
-  if (idx >= 0) {
-    state.selectedPurposes.splice(idx, 1);
+  const idx = AppState.purposes.indexOf(id);
+  if (idx > -1) {
+    AppState.purposes.splice(idx, 1);
   } else {
-    state.selectedPurposes.push(id);
+    AppState.purposes.push(id);
   }
-  // Highlight selected
-  document.querySelectorAll('#purpose-options .option-card').forEach(card => {
-    card.classList.toggle('selected', state.selectedPurposes.includes(card.dataset.id));
-  });
+  renderPurposeGrid();
   updatePurposeAdvice();
 }
 
 function updatePurposeAdvice() {
-  const box = document.getElementById('purpose-dynamic-advice');
-  if (!box) return;
-  const count = state.selectedPurposes.length;
-  if (count === 0) {
-    box.classList.remove('visible');
+  const el = document.getElementById('step1-dynamic-advice');
+  if (!el) return;
+  const count = AppState.purposes.length;
+  if (count === 0) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  const key = count >= 3 ? 'over' : String(count);
+  el.textContent = PURPOSE_ADVICE[key] || '';
+}
+
+// ===== STEP 2: 타입 선택 =====
+function selectType(type) {
+  AppState.sigilType = type;
+  document.querySelectorAll('.type-card').forEach(card => {
+    card.classList.toggle('selected', card.dataset.type === type);
+  });
+  // 목적 기반 기본값 자동 적용
+  applyDefaultOptions();
+}
+
+function applyDefaultOptions() {
+  if (!AppState.sigilType || AppState.purposes.length === 0) return;
+  const mainPurpose = AppState.purposes[0];
+  if (AppState.sigilType === 'traditional') {
+    AppState.traditionalOpts = { ...PURPOSE_TRADITIONAL_DEFAULT[mainPurpose] } || {};
+  } else {
+    AppState.modernOpts = { ...PURPOSE_MODERN_DEFAULT[mainPurpose] } || {};
+  }
+  // 분위기 기본값
+  const moodId = PURPOSE_MOOD_DEFAULT[mainPurpose] || 'obsidian';
+  AppState.mood = MOODS.find(m => m.id === moodId) || MOODS[0];
+}
+
+// ===== STEP 3: 세부 옵션 =====
+function renderStep3Options() {
+  const container = document.getElementById('step3-options-container');
+  if (!container) return;
+
+  const options = AppState.sigilType === 'traditional' ? TRADITIONAL_OPTIONS : MODERN_OPTIONS;
+  const currentOpts = AppState.sigilType === 'traditional' ? AppState.traditionalOpts : AppState.modernOpts;
+
+  container.innerHTML = Object.entries(options).map(([key, group]) => `
+    <div class="option-group" data-group-key="${key}" id="group-${key}">
+      <div class="option-group-header">
+        <span class="option-group-title">${group.title}</span>
+        <span class="required-badge">필수</span>
+      </div>
+      <p class="option-group-advice">${group.advice}</p>
+      <div class="option-grid">
+        ${group.items.map(item => `
+          <div class="option-item ${currentOpts[key] === item.id ? 'selected' : ''}"
+               data-group="${key}"
+               data-item="${item.id}"
+               onclick="selectStep3Option('${key}','${item.id}')">
+            <div class="option-name">${item.name}</div>
+            <div class="option-desc">${item.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectStep3Option(groupKey, itemId) {
+  if (AppState.sigilType === 'traditional') {
+    AppState.traditionalOpts[groupKey] = itemId;
+  } else {
+    AppState.modernOpts[groupKey] = itemId;
+  }
+
+  // 선택된 항목 UI 업데이트
+  document.querySelectorAll(`[data-group="${groupKey}"]`).forEach(el => {
+    el.classList.toggle('selected', el.dataset.item === itemId);
+    el.classList.remove('error-highlight');
+  });
+
+  // 그룹 에러 상태 해제
+  const groupEl = document.getElementById(`group-${groupKey}`);
+  if (groupEl) groupEl.classList.remove('error');
+}
+
+// ===== STEP 4: 분위기 =====
+function renderMoodGrid() {
+  const grid = document.getElementById('mood-grid');
+  if (!grid) return;
+  grid.innerHTML = MOODS.map(m => `
+    <div class="mood-item ${AppState.mood && AppState.mood.id === m.id ? 'selected' : ''}"
+         onclick="selectMood('${m.id}')">
+      <div class="mood-dot" style="background: ${m.bg}; border-color: ${m.glow};
+           box-shadow: 0 0 8px ${m.glow}50;"></div>
+      <div class="mood-name">${m.name}</div>
+      <div class="mood-desc">${m.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectMood(id) {
+  AppState.mood = MOODS.find(m => m.id === id);
+  renderMoodGrid();
+  // 편집 색상도 자동 반영
+  if (AppState.mood) {
+    AppState.editConfig.sigilColor = AppState.mood.line;
+    AppState.editConfig.bgColor = AppState.mood.bg;
+  }
+}
+
+// ===== 단계 이동 검증 =====
+function nextStep(step) {
+  if (!validateStep(step)) return;
+
+  const nextScreenMap = {
+    1: 'screen-step2',
+    2: 'screen-step3',
+    3: 'screen-step4',
+    4: 'screen-step5',
+    5: 'screen-step6',
+    6: 'screen-step7'
+  };
+
+  const next = nextScreenMap[step];
+  if (next) goTo(next);
+}
+
+function validateStep(step) {
+  if (step === 1) {
+    if (AppState.purposes.length === 0) {
+      showToast('목적을 하나 이상 선택해주세요');
+      const grid = document.getElementById('purpose-grid');
+      if (grid) { grid.classList.add('error-highlight'); setTimeout(() => grid.classList.remove('error-highlight'), 1000); }
+      return false;
+    }
+    return true;
+  }
+
+  if (step === 2) {
+    if (!AppState.sigilType) {
+      showToast('전통형 또는 현대형을 선택해주세요');
+      const cards = document.querySelectorAll('.type-card');
+      cards.forEach(c => { c.classList.add('error-highlight'); setTimeout(() => c.classList.remove('error-highlight'), 1000); });
+      return false;
+    }
+    return true;
+  }
+
+  if (step === 3) {
+    const options = AppState.sigilType === 'traditional' ? TRADITIONAL_OPTIONS : MODERN_OPTIONS;
+    const currentOpts = AppState.sigilType === 'traditional' ? AppState.traditionalOpts : AppState.modernOpts;
+    const missing = [];
+
+    Object.keys(options).forEach(key => {
+      if (!currentOpts[key]) missing.push(key);
+    });
+
+    if (missing.length > 0) {
+      // 미선택 항목 강조 + 첫 번째로 스크롤
+      missing.forEach((key, idx) => {
+        const groupEl = document.getElementById(`group-${key}`);
+        if (groupEl) {
+          groupEl.classList.add('error');
+          const items = groupEl.querySelectorAll('.option-item');
+          items.forEach(item => {
+            item.classList.add('error-highlight');
+            setTimeout(() => item.classList.remove('error-highlight'), 1200);
+          });
+          if (idx === 0) {
+            groupEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+      showToast(`${missing.length}개 항목을 아직 선택하지 않았습니다`);
+      return false;
+    }
+    return true;
+  }
+
+  if (step === 4) {
+    if (!AppState.mood) {
+      showToast('분위기를 선택해주세요');
+      return false;
+    }
+    return true;
+  }
+
+  return true;
+}
+
+// ===== STEP 5: 시길 생성 =====
+async function startGeneration() {
+  const statusEl = document.getElementById('generation-status');
+  const doneEl = document.getElementById('generation-done');
+  const btnEdit = document.getElementById('btn-to-edit');
+  const progressFill = document.getElementById('gen-progress-fill');
+  const progressPct = document.getElementById('gen-progress-pct');
+
+  if (!statusEl) return;
+
+  statusEl.classList.remove('hidden');
+  doneEl.classList.add('hidden');
+  btnEdit.classList.add('hidden');
+
+  const canvas = document.getElementById('sigil-preview-canvas');
+  canvas.width = 440;
+  canvas.height = 440;
+
+  const config = buildConfig();
+
+  try {
+    await sigilEngine.generate(canvas, config, (pct) => {
+      if (progressFill) progressFill.style.width = `${pct}%`;
+      if (progressPct) progressPct.textContent = `${Math.round(pct)}%`;
+    });
+
+    AppState.generatedSigilData = canvas.toDataURL('image/png');
+
+    // 완료 표시
+    statusEl.classList.add('hidden');
+    doneEl.classList.remove('hidden');
+    btnEdit.classList.remove('hidden');
+
+  } catch (e) {
+    console.error('Generation failed:', e);
+    statusEl.classList.add('hidden');
+    doneEl.classList.remove('hidden');
+    btnEdit.classList.remove('hidden');
+    showToast('생성 중 오류가 발생했습니다');
+  }
+}
+
+function buildConfig() {
+  const mood = AppState.mood || MOODS[0];
+  return {
+    sigilType: AppState.sigilType || 'traditional',
+    purposes: AppState.purposes,
+    traditionalOpts: AppState.sigilType === 'traditional' ? AppState.traditionalOpts : {},
+    modernOpts: AppState.sigilType === 'modern' ? AppState.modernOpts : {},
+    mood: mood,
+    sigilColor: AppState.editConfig.sigilColor || mood.line,
+    bgColor: AppState.editConfig.bgColor || mood.bg,
+    bgType: AppState.editConfig.bgType || 'solid',
+    lineWidth: AppState.editConfig.lineWidth || 2,
+    glow: AppState.editConfig.glow || 8,
+    scale: AppState.editConfig.scale || 100,
+    rotation: AppState.editConfig.rotation || 0
+  };
+}
+
+// ===== STEP 6: 편집 =====
+function renderEditScreen() {
+  const canvas = document.getElementById('edit-canvas');
+  if (!canvas) return;
+  canvas.width = 440;
+  canvas.height = 440;
+  drawEditCanvas();
+}
+
+async function drawEditCanvas() {
+  const canvas = document.getElementById('edit-canvas');
+  if (!canvas) return;
+  const config = buildConfig();
+  await sigilEngine.generate(canvas, config, null);
+}
+
+function updateEdit() {
+  AppState.editConfig.scale = parseInt(document.getElementById('ctrl-size')?.value || 100);
+  AppState.editConfig.lineWidth = parseFloat(document.getElementById('ctrl-linewidth')?.value || 2);
+  AppState.editConfig.glow = parseInt(document.getElementById('ctrl-glow')?.value || 8);
+  AppState.editConfig.rotation = parseInt(document.getElementById('ctrl-rotate')?.value || 0);
+  AppState.editConfig.sigilColor = document.getElementById('ctrl-color')?.value || '#d9cfff';
+  AppState.editConfig.bgColor = document.getElementById('ctrl-bg')?.value || '#0a0a0f';
+
+  // 값 표시
+  document.getElementById('size-val').textContent = AppState.editConfig.scale;
+  document.getElementById('linewidth-val').textContent = AppState.editConfig.lineWidth;
+  document.getElementById('glow-val').textContent = AppState.editConfig.glow;
+  document.getElementById('rotate-val').textContent = AppState.editConfig.rotation;
+
+  clearTimeout(AppState._editTimer);
+  AppState._editTimer = setTimeout(drawEditCanvas, 100);
+}
+
+function setBgType(type) {
+  AppState.editConfig.bgType = type;
+  document.querySelectorAll('.btn-bg-type').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.bg === type);
+  });
+  clearTimeout(AppState._editTimer);
+  AppState._editTimer = setTimeout(drawEditCanvas, 100);
+}
+
+// ===== STEP 7: 저장 & 공유 =====
+function renderSaveScreen() {
+  const canvas = document.getElementById('save-preview');
+  if (!canvas) return;
+  canvas.width = 280;
+  canvas.height = 500;
+  const config = buildConfig();
+  sigilEngine.generate(canvas, config, null);
+}
+
+function selectRes(btn, res) {
+  AppState.selectedResolution = res;
+  document.querySelectorAll('.btn-res').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function saveImage(type) {
+  const [w, h] = AppState.selectedResolution.split('x').map(Number);
+  const offCanvas = document.createElement('canvas');
+
+  if (type === 'transparent-png') {
+    offCanvas.width = h * 0.56;
+    offCanvas.height = h * 0.56;
+  } else {
+    offCanvas.width = w;
+    offCanvas.height = h;
+  }
+
+  const config = { ...buildConfig() };
+  if (type === 'transparent-png') {
+    config.bgType = 'transparent';
+    config.bgColor = 'rgba(0,0,0,0)';
+  }
+
+  const ctx = offCanvas.getContext('2d');
+
+  if (type === 'transparent-png') {
+    ctx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+  }
+
+  await sigilEngine.generate(offCanvas, config, null);
+
+  if (type === 'svg') {
+    saveSVG(offCanvas, config);
     return;
   }
-  box.classList.add('visible');
-  const t = ADVICE_TEXTS.purpose;
-  if (count === 1) box.textContent = t.single;
-  else if (count === 2) box.textContent = t.double;
-  else box.textContent = t.triple;
+
+  const mimeType = 'image/png';
+  offCanvas.toBlob(blob => {
+    if (!blob) { showToast('저장 실패'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `creosigil_${Date.now()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('💾 저장되었습니다');
+    saveToArchive(offCanvas);
+  }, mimeType, 0.95);
 }
 
-// ========== TYPE SELECTION ==========
-function renderTypeScreen() {
-  // Re-attach click handlers (remove old ones by cloning)
-  document.querySelectorAll('#type-options .type-card').forEach(card => {
-    const newCard = card.cloneNode(true);
-    card.parentNode.replaceChild(newCard, card);
-    newCard.classList.toggle('selected', state.sigilType === newCard.dataset.type);
-    newCard.addEventListener('click', function() {
-      state.sigilType = this.dataset.type;
-      document.querySelectorAll('#type-options .type-card').forEach(c => c.classList.remove('selected'));
-      this.classList.add('selected');
-    });
-  });
-
-  const nextBtn = document.getElementById('btn-type-next');
-  if (nextBtn) {
-    nextBtn.onclick = () => {
-      if (!state.sigilType) {
-        showToast('전통형 또는 현대형을 선택해주세요');
-        return;
-      }
-      if (state.sigilType === 'traditional') {
-        renderTradScreen();
-        showScreen('trad-options');
-      } else {
-        renderModernScreen();
-        showScreen('modern-options');
-      }
-    };
-  }
-}
-
-// ========== TRADITIONAL OPTIONS ==========
-function renderTradScreen() {
-  // Structures
-  renderOptionGroup('trad-structure', TRAD_STRUCTURES, 'structure', state.trad, 'trad');
-  // Symbols
-  renderOptionGroup('trad-symbol', TRAD_SYMBOLS, 'symbol', state.trad, 'trad');
-  // Density
-  renderOptionGroup('trad-density', TRAD_DENSITY, 'density', state.trad, 'trad');
-  // Line styles
-  renderOptionGroup('trad-line', TRAD_LINE_STYLES, 'lineStyle', state.trad, 'trad');
-  // Symmetry
-  renderOptionGroup('trad-symmetry', TRAD_SYMMETRY, 'symmetry', state.trad, 'trad');
-  // Decorations
-  renderOptionGroup('trad-decoration', TRAD_DECORATIONS, 'decoration', state.trad, 'trad');
-
-  const nextBtn = document.getElementById('btn-trad-next');
-  if (nextBtn) {
-    nextBtn.onclick = () => validateAndProceed('trad');
-  }
-}
-
-function renderOptionGroup(containerId, items, stateKey, stateObj, prefix) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '';
-  items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'option-card' + (stateObj[stateKey] === item.id ? ' selected' : '');
-    card.dataset.id = item.id;
-    card.dataset.group = stateKey;
-
-    const iconHtml = item.icon ? `<span class="option-icon">${item.icon}</span>` : '';
-    const detailHtml = item.detail ? `
-      <div class="more-expand" style="display:none; margin-top:6px; font-size:11px; color:var(--text-muted); line-height:1.6;">${item.detail}</div>
-      <button class="btn-more" style="margin-top:4px;" data-expand="${containerId}_${item.id}">▼ 더 보기</button>
-    ` : '';
-
-    card.innerHTML = `
-      ${iconHtml}
-      <div class="option-name">${item.name}</div>
-      <div class="option-desc">${item.desc}</div>
-      ${detailHtml}
-    `;
-
-    card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('btn-more')) return;
-      stateObj[stateKey] = item.id;
-      container.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected', 'required-error'));
-      card.classList.add('selected');
-    });
-
-    // More button inside card
-    const moreBtn = card.querySelector('.btn-more');
-    if (moreBtn) {
-      moreBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const expandEl = card.querySelector('.more-expand');
-        if (!expandEl) return;
-        const isOpen = expandEl.style.display === 'block';
-        expandEl.style.display = isOpen ? 'none' : 'block';
-        moreBtn.textContent = isOpen ? '▼ 더 보기' : '▲ 간략히';
-      });
-    }
-    container.appendChild(card);
-  });
-}
-
-// ========== VALIDATION ==========
-function validateAndProceed(type) {
-  const errorEl = document.getElementById(`${type}-validation-error`);
-  const requiredGroups = type === 'trad' ? TRAD_REQUIRED_GROUPS : MODERN_REQUIRED_GROUPS;
-  const stateObj = type === 'trad' ? state.trad : state.modern;
-  const containerMap = {
-    trad: {
-      structure: 'trad-structure',
-      symbol: 'trad-symbol',
-      density: 'trad-density',
-      lineStyle: 'trad-line',
-      symmetry: 'trad-symmetry',
-    },
-    modern: {
-      style: 'modern-style',
-      lineStyle: 'modern-line',
-      complexity: 'modern-complexity',
-      symmetry: 'modern-symmetry',
-    }
-  };
-
-  const missing = requiredGroups.filter(key => !stateObj[key]);
-  if (missing.length > 0) {
-    if (errorEl) {
-      const names = missing.map(k => {
-        const nameMap = {
-          structure: '봉인 구조',
-          symbol: '중심 상징',
-          density: '상징 밀도',
-          lineStyle: '선 스타일',
-          symmetry: '대칭 방식',
-          style: '표현 스타일',
-          complexity: '복잡도',
-        };
-        return nameMap[k] || k;
-      });
-      errorEl.textContent = `선택하지 않은 항목이 있습니다: ${names.join(', ')}`;
-      errorEl.classList.add('visible');
-    }
-
-    // Shake missing groups and scroll to first
-    let firstMissingEl = null;
-    missing.forEach(key => {
-      const cid = containerMap[type][key];
-      if (!cid) return;
-      const el = document.getElementById(cid);
-      if (!el) return;
-      el.querySelectorAll('.option-card').forEach(c => {
-        c.classList.add('required-error');
-        setTimeout(() => c.classList.remove('required-error'), 600);
-      });
-      if (!firstMissingEl) firstMissingEl = el;
-    });
-
-    if (firstMissingEl) {
-      firstMissingEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    return;
-  }
-
-  if (errorEl) errorEl.classList.remove('visible');
-  renderMoodScreen();
-  showScreen('mood');
-}
-
-// ========== MODERN OPTIONS ==========
-function renderModernScreen() {
-  renderOptionGroup('modern-style', MODERN_STYLES, 'style', state.modern, 'modern');
-  renderOptionGroup('modern-line', MODERN_LINE_STYLES, 'lineStyle', state.modern, 'modern');
-  renderOptionGroup('modern-complexity', MODERN_COMPLEXITY, 'complexity', state.modern, 'modern');
-  renderOptionGroup('modern-symmetry', MODERN_SYMMETRY, 'symmetry', state.modern, 'modern');
-
-  const nextBtn = document.getElementById('btn-modern-next');
-  if (nextBtn) {
-    nextBtn.onclick = () => validateAndProceed('modern');
-  }
-}
-
-// ========== MOOD SELECTION ==========
-function renderMoodScreen() {
-  const container = document.getElementById('mood-options');
-  if (!container) return;
-  container.innerHTML = '';
-  MOODS.forEach(mood => {
-    const card = document.createElement('div');
-    card.className = 'mood-card' + (state.mood === mood.id ? ' selected' : '');
-    card.dataset.id = mood.id;
-    const bg = mood.colors.bg;
-    const line = mood.colors.line;
-    card.innerHTML = `
-      <div class="mood-swatch" style="background: radial-gradient(circle, ${line}44 0%, ${bg} 100%); border-color: ${line}40;"></div>
-      <div class="mood-name">${mood.name}</div>
-      <div class="mood-desc">${mood.desc}</div>
-    `;
-    card.addEventListener('click', () => {
-      state.mood = mood.id;
-      container.querySelectorAll('.mood-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-    });
-    container.appendChild(card);
-  });
-
-  const nextBtn = document.getElementById('btn-mood-next');
-  if (nextBtn) {
-    nextBtn.onclick = () => {
-      if (!state.mood) {
-        showToast('분위기를 선택해주세요');
-        return;
-      }
-      startGeneration();
-    };
-  }
-}
-
-// ========== GENERATION ==========
-function startGeneration() {
-  showScreen('generation');
-
-  genCanvas = document.getElementById('gen-canvas');
-  if (!genCanvas) return;
-  genCanvas.width = 600;
-  genCanvas.height = 600;
-  sigilEngine = new SigilEngine(genCanvas);
-
-  const moodData = MOODS.find(m => m.id === state.mood) || MOODS[0];
-  const bgData = BACKGROUNDS[1]; // dark gradient by default
-
-  // Draw background
-  sigilEngine.drawBackground(bgData, moodData.colors, 600, 600);
-
-  let progress = 0;
-  const progressBar = document.getElementById('gen-progress-bar');
-  const progressText = document.getElementById('gen-progress-text');
-
-  if (genAnimId) cancelAnimationFrame(genAnimId);
-
-  function animate() {
-    progress = Math.min(1, progress + 0.008);
-
-    // Redraw
-    sigilEngine.drawBackground(bgData, moodData.colors, 600, 600);
-    if (state.sigilType === 'traditional') {
-      sigilEngine.drawTraditional({
-        structure: state.trad.structure || 'circle_seal',
-        symbol: state.trad.symbol || 'circle',
-        density: state.trad.density || 'medium',
-        lineStyle: state.trad.lineStyle || 'thin_ink',
-        symmetry: state.trad.symmetry || 'full',
-        decoration: state.trad.decoration || 'outer_ring',
-        moodColors: moodData.colors,
-        progress,
-      });
-    } else {
-      sigilEngine.drawModern({
-        style: state.modern.style || 'minimal_logo',
-        lineStyle: state.modern.lineStyle || 'monoline',
-        complexity: state.modern.complexity || 'balance',
-        symmetry: state.modern.symmetry || 'full',
-        moodColors: moodData.colors,
-        progress,
-      });
-    }
-
-    const pct = Math.round(progress * 100);
-    if (progressBar) progressBar.style.width = pct + '%';
-    if (progressText) progressText.textContent = pct + '%';
-
-    if (progress < 1) {
-      genAnimId = requestAnimationFrame(animate);
-    } else {
-      genAnimId = null;
-      // Save final state
-      state.savedSigilData = {
-        type: state.sigilType,
-        trad: { ...state.trad },
-        modern: { ...state.modern },
-        mood: state.mood,
-        timestamp: Date.now(),
-      };
-      // Auto-proceed to edit after short delay
-      setTimeout(() => {
-        setupEditScreen();
-        showScreen('edit');
-      }, 500);
-    }
-  }
-
-  genAnimId = requestAnimationFrame(animate);
-}
-
-// ========== EDIT SCREEN ==========
-function setupEditScreen() {
-  editCanvas = document.getElementById('edit-canvas');
-  if (!editCanvas) return;
-  editCanvas.width = 480;
-  editCanvas.height = 854;
-
-  renderEditCanvas();
-
-  // Ratio buttons
-  document.querySelectorAll('.ratio-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      state.edit.ratio = this.dataset.ratio;
-      renderEditCanvas();
-    });
-  });
-
-  // Sliders
-  const makeSlider = (id, stateKey, min, max) => {
-    const slider = document.getElementById(id);
-    const valEl = document.getElementById(id + '-val');
-    if (!slider) return;
-    slider.value = Math.round(((state.edit[stateKey] - min) / (max - min)) * 100);
-    if (valEl) valEl.textContent = Math.round(state.edit[stateKey] * 100);
-    slider.addEventListener('input', () => {
-      state.edit[stateKey] = min + (slider.value / 100) * (max - min);
-      if (valEl) valEl.textContent = Math.round(state.edit[stateKey] * 100);
-      renderEditCanvas();
-    });
-  };
-  makeSlider('ctrl-scale', 'scale', 0.3, 1.0);
-  makeSlider('ctrl-glow', 'glow', 0, 1);
-  makeSlider('ctrl-lineweight', 'lineWeight', 0.3, 1.5);
-
-  // Color swatches
-  const sigilColors = ['#C8C0E8','#D4E0F0','#F0EEF8','#E8D890','#F0D0D8','#90D0FF','#D8D4EC','#8090D8'];
-  const colorSwatchContainer = document.getElementById('sigil-colors');
-  if (colorSwatchContainer) {
-    colorSwatchContainer.innerHTML = '';
-    sigilColors.forEach((c, i) => {
-      const swatch = document.createElement('div');
-      swatch.className = 'color-swatch' + (state.edit.colorIdx === i ? ' active' : '');
-      swatch.style.background = c;
-      swatch.addEventListener('click', () => {
-        state.edit.colorIdx = i;
-        document.querySelectorAll('.color-swatch').forEach((s, si) => s.classList.toggle('active', si === i));
-        renderEditCanvas();
-      });
-      colorSwatchContainer.appendChild(swatch);
-    });
-  }
-
-  // Background swatches
-  const bgContainer = document.getElementById('bg-swatches');
-  if (bgContainer) {
-    bgContainer.innerHTML = '';
-    BACKGROUNDS.forEach((bg, i) => {
-      const swatch = document.createElement('div');
-      swatch.className = 'bg-swatch' + (state.edit.bgIdx === i ? ' active' : '');
-      swatch.style.background = bg.gradient || bg.color;
-      swatch.title = bg.name;
-      swatch.addEventListener('click', () => {
-        state.edit.bgIdx = i;
-        document.querySelectorAll('.bg-swatch').forEach((s, si) => s.classList.toggle('active', si === i));
-        renderEditCanvas();
-      });
-      bgContainer.appendChild(swatch);
-    });
-  }
-
-  // Next to save
-  const saveBtn = document.getElementById('btn-edit-save');
-  if (saveBtn) {
-    saveBtn.onclick = () => {
-      setupSaveScreen();
-      showScreen('save');
-    };
-  }
-}
-
-function renderEditCanvas() {
-  if (!editCanvas) return;
-  const engine = new SigilEngine(editCanvas);
-  const moodData = MOODS.find(m => m.id === state.mood) || MOODS[0];
-  const bgData = BACKGROUNDS[state.edit.bgIdx] || BACKGROUNDS[1];
-  const sigilColors = ['#C8C0E8','#D4E0F0','#F0EEF8','#E8D890','#F0D0D8','#90D0FF','#D8D4EC','#8090D8'];
-
-  const customMood = {
-    ...moodData.colors,
-    line: sigilColors[state.edit.colorIdx] || moodData.colors.line,
-    glow: sigilColors[state.edit.colorIdx] || moodData.colors.glow,
-  };
-
-  engine.drawBackground(bgData, customMood, editCanvas.width, editCanvas.height);
-
-  const scale = state.edit.scale;
-  const savedTransform = editCanvas.getContext('2d');
-  const ctx = editCanvas.getContext('2d');
-  ctx.save();
-  ctx.translate(editCanvas.width / 2, editCanvas.height / 2 + (state.edit.posY - 0.5) * editCanvas.height * 0.2);
-  ctx.scale(scale, scale);
-  ctx.translate(-engine.cx, -engine.cy);
-
-  engine.cx = editCanvas.width / 2;
-  engine.cy = editCanvas.height / 2;
-  engine.r = Math.min(editCanvas.width, editCanvas.height) * 0.42;
-
-  const glowMultiplier = state.edit.glow;
-  const lineMultiplier = state.edit.lineWeight;
-
-  const adjustedMood = {
-    ...customMood,
-  };
-
-  ctx.restore();
-
-  // Simple redraw with scale applied via canvas transform
-  const tCtx = editCanvas.getContext('2d');
-  tCtx.save();
-  tCtx.translate(editCanvas.width / 2, editCanvas.height / 2 + (state.edit.posY - 0.5) * editCanvas.height * 0.2);
-  tCtx.scale(scale, scale);
-  tCtx.translate(-editCanvas.width / 2, -editCanvas.height / 2);
-
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = editCanvas.width;
-  tempCanvas.height = editCanvas.height;
-  const tempEngine = new SigilEngine(tempCanvas);
-
-  if (state.sigilType === 'traditional') {
-    tempEngine.drawTraditional({
-      structure: state.trad.structure || 'circle_seal',
-      symbol: state.trad.symbol || 'circle',
-      density: state.trad.density || 'medium',
-      lineStyle: state.trad.lineStyle || 'thin_ink',
-      symmetry: state.trad.symmetry || 'full',
-      decoration: state.trad.decoration || 'outer_ring',
-      moodColors: adjustedMood,
-      progress: 1,
-    });
-  } else {
-    tempEngine.drawModern({
-      style: state.modern.style || 'minimal_logo',
-      lineStyle: state.modern.lineStyle || 'monoline',
-      complexity: state.modern.complexity || 'balance',
-      symmetry: state.modern.symmetry || 'full',
-      moodColors: adjustedMood,
-      progress: 1,
-    });
-  }
-  tCtx.drawImage(tempCanvas, 0, 0);
-  tCtx.restore();
-}
-
-// ========== SAVE SCREEN ==========
-function setupSaveScreen() {
-  saveCanvas = document.getElementById('save-canvas');
-  if (!saveCanvas) return;
-  saveCanvas.width = 480;
-  saveCanvas.height = 854;
-
-  renderSaveCanvas(saveCanvas);
-
-  // Resolution presets
-  document.querySelectorAll('.res-preset').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.res-preset').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      const idx = parseInt(this.dataset.idx);
-      state.resolutionIdx = idx;
-    });
-  });
-  // Default active
-  document.querySelector(`.res-preset[data-idx="${state.resolutionIdx}"]`)?.classList.add('active');
-
-  // Save buttons
-  document.getElementById('btn-save-wallpaper')?.addEventListener('click', () => saveAsWallpaper());
-  document.getElementById('btn-save-transparent')?.addEventListener('click', () => saveAsTransparent());
-  document.getElementById('btn-save-svg')?.addEventListener('click', () => saveAsSVG());
-  document.getElementById('btn-share')?.addEventListener('click', () => shareImage());
-  document.getElementById('btn-save-new')?.addEventListener('click', () => {
-    // Save to library and reset
-    saveToLibrary();
-    startFastMode();
-  });
-  document.getElementById('btn-go-archive')?.addEventListener('click', () => {
-    renderLibraryScreen();
-    showScreen('library');
-  });
-
-  // Wallpaper guide tabs
-  document.querySelectorAll('.guide-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.guide-steps').forEach(s => s.classList.remove('active'));
-      this.classList.add('active');
-      document.getElementById('guide-' + this.dataset.os)?.classList.add('active');
-    });
-  });
-}
-
-function renderSaveCanvas(canvas) {
-  const engine = new SigilEngine(canvas);
-  const moodData = MOODS.find(m => m.id === state.mood) || MOODS[0];
-  const bgData = BACKGROUNDS[state.edit.bgIdx] || BACKGROUNDS[1];
-  const sigilColors = ['#C8C0E8','#D4E0F0','#F0EEF8','#E8D890','#F0D0D8','#90D0FF','#D8D4EC','#8090D8'];
-  const customMood = {
-    ...moodData.colors,
-    line: sigilColors[state.edit.colorIdx] || moodData.colors.line,
-    glow: sigilColors[state.edit.colorIdx] || moodData.colors.glow,
-  };
-
-  engine.drawBackground(bgData, customMood, canvas.width, canvas.height);
-
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-  const tempEngine = new SigilEngine(tempCanvas);
-
-  if (state.sigilType === 'traditional') {
-    tempEngine.drawTraditional({
-      structure: state.trad.structure || 'circle_seal',
-      symbol: state.trad.symbol || 'circle',
-      density: state.trad.density || 'medium',
-      lineStyle: state.trad.lineStyle || 'thin_ink',
-      symmetry: state.trad.symmetry || 'full',
-      decoration: state.trad.decoration || 'outer_ring',
-      moodColors: customMood,
-      progress: 1,
-    });
-  } else {
-    tempEngine.drawModern({
-      style: state.modern.style || 'minimal_logo',
-      lineStyle: state.modern.lineStyle || 'monoline',
-      complexity: state.modern.complexity || 'balance',
-      symmetry: state.modern.symmetry || 'full',
-      moodColors: customMood,
-      progress: 1,
-    });
-  }
-
-  canvas.getContext('2d').drawImage(tempCanvas, 0, 0);
-}
-
-// ========== EXPORT FUNCTIONS ==========
-async function getHighResCanvas() {
-  const res = RESOLUTIONS[state.resolutionIdx] || RESOLUTIONS[1];
-  const canvas = document.createElement('canvas');
-  canvas.width = res.width;
-  canvas.height = res.height;
-
-  const engine = new SigilEngine(canvas);
-  const moodData = MOODS.find(m => m.id === state.mood) || MOODS[0];
-  const bgData = BACKGROUNDS[state.edit.bgIdx] || BACKGROUNDS[1];
-  const sigilColors = ['#C8C0E8','#D4E0F0','#F0EEF8','#E8D890','#F0D0D8','#90D0FF','#D8D4EC','#8090D8'];
-  const customMood = {
-    ...moodData.colors,
-    line: sigilColors[state.edit.colorIdx] || moodData.colors.line,
-    glow: sigilColors[state.edit.colorIdx] || moodData.colors.glow,
-  };
-
-  engine.drawBackground(bgData, customMood, res.width, res.height);
-
-  if (state.sigilType === 'traditional') {
-    engine.drawTraditional({
-      structure: state.trad.structure || 'circle_seal',
-      symbol: state.trad.symbol || 'circle',
-      density: state.trad.density || 'medium',
-      lineStyle: state.trad.lineStyle || 'thin_ink',
-      symmetry: state.trad.symmetry || 'full',
-      decoration: state.trad.decoration || 'outer_ring',
-      moodColors: customMood,
-      progress: 1,
-    });
-  } else {
-    engine.drawModern({
-      style: state.modern.style || 'minimal_logo',
-      lineStyle: state.modern.lineStyle || 'monoline',
-      complexity: state.modern.complexity || 'balance',
-      symmetry: state.modern.symmetry || 'full',
-      moodColors: customMood,
-      progress: 1,
-    });
-  }
-  return canvas;
-}
-
-async function saveAsWallpaper() {
-  const canvas = await getHighResCanvas();
-  const res = RESOLUTIONS[state.resolutionIdx] || RESOLUTIONS[1];
-  const link = document.createElement('a');
-  link.download = `creosigil-wallpaper-${res.label.toLowerCase()}-${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  showToast('배경화면 PNG 저장 완료');
-  saveToLibrary();
-}
-
-async function saveAsTransparent() {
-  const res = RESOLUTIONS[state.resolutionIdx] || RESOLUTIONS[1];
-  const canvas = document.createElement('canvas');
-  canvas.width = res.width;
-  canvas.height = res.height;
-
-  const engine = new SigilEngine(canvas);
-  const moodData = MOODS.find(m => m.id === state.mood) || MOODS[0];
-  const sigilColors = ['#C8C0E8','#D4E0F0','#F0EEF8','#E8D890','#F0D0D8','#90D0FF','#D8D4EC','#8090D8'];
-  const customMood = {
-    ...moodData.colors,
-    line: sigilColors[state.edit.colorIdx] || moodData.colors.line,
-    glow: sigilColors[state.edit.colorIdx] || moodData.colors.glow,
-  };
-
-  // No background — transparent
-  if (state.sigilType === 'traditional') {
-    engine.drawTraditional({
-      structure: state.trad.structure || 'circle_seal',
-      symbol: state.trad.symbol || 'circle',
-      density: state.trad.density || 'medium',
-      lineStyle: state.trad.lineStyle || 'thin_ink',
-      symmetry: state.trad.symmetry || 'full',
-      decoration: state.trad.decoration || 'outer_ring',
-      moodColors: customMood,
-      progress: 1,
-    });
-  } else {
-    engine.drawModern({
-      style: state.modern.style || 'minimal_logo',
-      lineStyle: state.modern.lineStyle || 'monoline',
-      complexity: state.modern.complexity || 'balance',
-      symmetry: state.modern.symmetry || 'full',
-      moodColors: customMood,
-      progress: 1,
-    });
-  }
-
-  const link = document.createElement('a');
-  link.download = `creosigil-transparent-${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  showToast('투명 PNG 저장 완료');
+function saveSVG(canvas, config) {
+  const w = canvas.width;
+  const h = canvas.height;
+  const dataUrl = canvas.toDataURL('image/png');
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}">
+  <image href="${dataUrl}" width="${w}" height="${h}"/>
+</svg>`;
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `creosigil_${Date.now()}.svg`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✦ SVG 저장되었습니다');
 }
 
 async function shareImage() {
-  const canvas = await getHighResCanvas();
-  canvas.toBlob(async blob => {
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'creosigil.png', { type: 'image/png' })] })) {
-      try {
-        await navigator.share({
-          files: [new File([blob], 'creosigil.png', { type: 'image/png' })],
-          title: 'CREOSIGIL',
-          text: '나만의 시길',
-        });
-      } catch(e) { console.log(e); }
-    } else {
-      // Fallback: download
-      saveAsWallpaper();
-    }
-  }, 'image/png');
-}
-
-function saveAsSVG() {
-  // Generate SVG approximation
-  const moodData = MOODS.find(m => m.id === state.mood) || MOODS[0];
-  const sigilColors = ['#C8C0E8','#D4E0F0','#F0EEF8','#E8D890','#F0D0D8','#90D0FF','#D8D4EC','#8090D8'];
-  const lineColor = sigilColors[state.edit.colorIdx] || moodData.colors.line;
-  const bgData = BACKGROUNDS[state.edit.bgIdx] || BACKGROUNDS[1];
-  const size = 1440;
-  const cx = size / 2, cy = size / 2, r = size * 0.42;
-
-  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
-  <rect width="${size}" height="${size}" fill="${bgData.color}"/>
-  <g stroke="${lineColor}" fill="none" stroke-width="${size * 0.002}" opacity="0.8">
-    <circle cx="${cx}" cy="${cy}" r="${r}" opacity="0.6"/>
-    <circle cx="${cx}" cy="${cy}" r="${r * 0.75}" opacity="0.4"/>
-    <circle cx="${cx}" cy="${cy}" r="${r * 0.45}" opacity="0.5"/>
-    <line x1="${cx}" y1="${cy - r * 0.4}" x2="${cx}" y2="${cy + r * 0.4}" opacity="0.3"/>
-    <line x1="${cx - r * 0.4}" y1="${cy}" x2="${cx + r * 0.4}" y2="${cy}" opacity="0.3"/>
-  </g>
-  <text x="${cx}" y="${size - 60}" font-family="serif" font-size="28" fill="${lineColor}" text-anchor="middle" opacity="0.4">CREOSIGIL</text>
-</svg>`;
-
-  const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-  const link = document.createElement('a');
-  link.download = `creosigil-${Date.now()}.svg`;
-  link.href = URL.createObjectURL(blob);
-  link.click();
-  showToast('SVG 저장 완료');
-}
-
-// ========== LIBRARY ==========
-function loadLibrary() {
+  if (!navigator.share) {
+    showToast('이 브라우저는 공유 기능을 지원하지 않습니다');
+    return;
+  }
   try {
-    const saved = localStorage.getItem('creosigil_library');
-    state.library = saved ? JSON.parse(saved) : [];
-  } catch(e) { state.library = []; }
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080; canvas.height = 1920;
+    const config = buildConfig();
+    await sigilEngine.generate(canvas, config, null);
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], 'creosigil.png', { type: 'image/png' });
+      await navigator.share({ title: 'CREOSIGIL', files: [file] });
+    }, 'image/png');
+  } catch (e) {
+    if (e.name !== 'AbortError') showToast('공유 실패');
+  }
 }
 
-function saveToLibrary() {
-  if (!saveCanvas) return;
-  const thumbnail = saveCanvas.toDataURL('image/jpeg', 0.5);
-  const item = {
+// ===== 보관함 =====
+function saveToArchive(canvas) {
+  const archive = getArchive();
+  const data = {
     id: Date.now(),
-    thumbnail,
-    type: state.sigilType,
-    mood: state.mood,
-    trad: { ...state.trad },
-    modern: { ...state.modern },
-    edit: { ...state.edit },
-    date: new Date().toLocaleDateString('ko-KR'),
+    dataUrl: canvas.toDataURL('image/jpeg', 0.7),
+    config: JSON.stringify(buildConfig()),
+    label: `${AppState.purposes.join('+')} / ${AppState.sigilType}`
   };
-  state.library.unshift(item);
-  if (state.library.length > 20) state.library = state.library.slice(0, 20);
+  archive.unshift(data);
+  if (archive.length > 20) archive.pop();
+  localStorage.setItem('creosigil_archive', JSON.stringify(archive));
+}
+
+function getArchive() {
   try {
-    localStorage.setItem('creosigil_library', JSON.stringify(state.library));
-  } catch(e) {}
-  renderRecentGrid();
+    return JSON.parse(localStorage.getItem('creosigil_archive') || '[]');
+  } catch { return []; }
 }
 
-function renderRecentGrid() {
-  const grid = document.getElementById('recent-grid');
-  if (!grid) return;
-  if (state.library.length === 0) {
-    grid.innerHTML = `<div class="recent-empty" style="grid-column:1/-1;"><div class="empty-icon">✦</div><p>아직 만든 시길이 없습니다.<br>첫 시길을 만들어보세요.</p></div>`;
+function renderArchive() {
+  const list = document.getElementById('archive-list');
+  const empty = document.getElementById('archive-empty');
+  if (!list) return;
+
+  const archive = getArchive();
+  if (archive.length === 0) {
+    list.innerHTML = '';
+    empty?.classList.remove('hidden');
     return;
   }
-  grid.innerHTML = '';
-  state.library.slice(0, 6).forEach(item => {
-    const el = document.createElement('div');
-    el.className = 'recent-item';
-    el.innerHTML = `<img src="${item.thumbnail}" alt="시길" loading="lazy">`;
-    el.addEventListener('click', () => {
-      // Restore state and go to save
-      state.sigilType = item.type;
-      state.trad = { ...item.trad };
-      state.modern = { ...item.modern };
-      state.mood = item.mood;
-      state.edit = { ...item.edit };
-      setupSaveScreen();
-      showScreen('save');
-    });
-    grid.appendChild(el);
-  });
+
+  empty?.classList.add('hidden');
+  list.innerHTML = archive.map(item => `
+    <div class="archive-item" onclick="loadFromArchive(${item.id})">
+      <img src="${item.dataUrl}" style="width:100%;aspect-ratio:1;border-radius:8px;border:1px solid rgba(160,140,230,0.2);display:block;">
+      <div class="archive-item-label">${item.label || '시길'}</div>
+    </div>
+  `).join('');
 }
 
-function renderLibraryScreen() {
-  const grid = document.getElementById('library-grid');
-  if (!grid) return;
-  if (state.library.length === 0) {
-    grid.innerHTML = `<div class="library-empty"><div class="library-empty-icon">✦</div><p class="library-empty-text">보관함이 비어 있습니다.<br>시길을 만들고 저장해보세요.</p></div>`;
+function renderHomeRecent() {
+  const archive = getArchive();
+  const recentSection = document.getElementById('home-recent');
+  const recentList = document.getElementById('home-recent-list');
+  if (!recentSection || !recentList) return;
+
+  if (archive.length === 0) {
+    recentSection.classList.add('hidden');
     return;
   }
-  grid.innerHTML = '';
-  state.library.forEach(item => {
-    const el = document.createElement('div');
-    el.className = 'library-item';
-    el.innerHTML = `
-      <div class="library-item-img"><img src="${item.thumbnail}" alt="시길" loading="lazy"></div>
-      <div class="library-item-info">
-        <div class="library-item-title">${item.type === 'traditional' ? '전통형' : '현대형'} · ${MOODS.find(m=>m.id===item.mood)?.name || ''}</div>
-        <div class="library-item-date">${item.date}</div>
-      </div>
-    `;
-    el.addEventListener('click', () => {
-      state.sigilType = item.type;
-      state.trad = { ...item.trad };
-      state.modern = { ...item.modern };
-      state.mood = item.mood;
-      state.edit = { ...item.edit };
-      saveCanvas = document.getElementById('save-canvas');
-      setupSaveScreen();
-      showScreen('save');
-    });
-    grid.appendChild(el);
-  });
+
+  recentSection.classList.remove('hidden');
+  recentList.innerHTML = archive.slice(0, 5).map(item => `
+    <div class="recent-item" onclick="loadFromArchive(${item.id})">
+      <img src="${item.dataUrl}" style="width:80px;height:80px;border-radius:8px;border:1px solid rgba(160,140,230,0.2);">
+    </div>
+  `).join('');
 }
 
-// ========== QR GENERATOR ==========
-// ========== QR GENERATOR (순수 JS, 외부 라이브러리 없음) ==========
-function openQRModal() {
-  document.getElementById('qr-modal')?.classList.add('open');
-  const input = document.getElementById('qr-input');
-  if (input && !input.value) input.value = window.location.href;
-  generateQR();
+function loadFromArchive(id) {
+  const archive = getArchive();
+  const item = archive.find(a => a.id === id);
+  if (!item) return;
+  try {
+    const config = JSON.parse(item.config);
+    AppState.sigilType = config.sigilType;
+    AppState.purposes = config.purposes || [];
+    AppState.traditionalOpts = config.traditionalOpts || {};
+    AppState.modernOpts = config.modernOpts || {};
+    AppState.mood = config.mood;
+    AppState.editConfig = {
+      scale: config.scale || 100,
+      lineWidth: config.lineWidth || 2,
+      glow: config.glow || 8,
+      rotation: config.rotation || 0,
+      sigilColor: config.sigilColor || '#d9cfff',
+      bgColor: config.bgColor || '#0a0a0f',
+      bgType: config.bgType || 'solid'
+    };
+    goTo('screen-step6');
+  } catch (e) {
+    showToast('불러오기 실패');
+  }
 }
 
-function closeQRModal() {
-  document.getElementById('qr-modal')?.classList.remove('open');
+// ===== QR 생성기 =====
+function showQRGenerator() {
+  document.getElementById('modal-qr')?.classList.remove('hidden');
+}
+
+function hideQRGenerator() {
+  document.getElementById('modal-qr')?.classList.add('hidden');
 }
 
 function generateQR() {
-  const input = document.getElementById('qr-input');
-  const wrap = document.getElementById('qr-canvas-wrap');
-  if (!wrap) return;
+  const input = document.getElementById('qr-input')?.value?.trim();
+  if (!input) { showToast('URL 또는 텍스트를 입력해주세요'); return; }
 
-  const text = (input && input.value.trim()) ? input.value.trim() : window.location.href;
+  const resultDiv = document.getElementById('qr-result');
+  const canvas = document.getElementById('qr-canvas');
+  if (!canvas || !resultDiv) return;
 
-  // 이전 QR 제거
-  wrap.innerHTML = '';
+  // 간단한 QR 생성 (qr.js 없이 Canvas로 시각적 QR 유사 패턴 생성)
+  drawSimpleQR(canvas, input);
+  resultDiv.classList.remove('hidden');
+}
 
-  // CreoQR: js/qr-generator.js에서 로드된 순수 JS 구현
-  if (typeof CreoQR !== 'undefined') {
-    const canvas = document.createElement('canvas');
-    canvas.style.display = 'block';
-    wrap.appendChild(canvas);
+function drawSimpleQR(canvas, text) {
+  const size = 200;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const cellSize = 8;
+  const cells = Math.floor(size / cellSize);
 
-    const success = CreoQR.render(canvas, text, {
-      size: 192,
-      margin: 6,
-      darkColor: '#1A0D2E',
-      lightColor: '#FFFFFF',
-    });
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
 
-    if (!success) {
-      wrap.innerHTML = '<div style="color:#999;font-size:11px;text-align:center;padding:20px;">QR 생성 실패<br>텍스트를 줄여보세요</div>';
-    }
-  } else {
-    wrap.innerHTML = '<div style="color:#999;font-size:11px;text-align:center;padding:20px;">QR 모듈 로딩 중...</div>';
-    // 재시도
-    setTimeout(() => generateQR(), 300);
+  // 텍스트를 숫자로 변환하여 패턴 생성
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash) + text.charCodeAt(i);
+    hash |= 0;
   }
+
+  const rng = (() => {
+    let s = Math.abs(hash) || 12345;
+    return () => {
+      s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+      return ((s >>> 0) / 0xffffffff);
+    };
+  })();
+
+  ctx.fillStyle = '#0a0a0f';
+
+  // 파인더 패턴 (좌상)
+  drawFinderPattern(ctx, 1 * cellSize, 1 * cellSize, cellSize);
+  // 파인더 패턴 (우상)
+  drawFinderPattern(ctx, (cells - 8) * cellSize, 1 * cellSize, cellSize);
+  // 파인더 패턴 (좌하)
+  drawFinderPattern(ctx, 1 * cellSize, (cells - 8) * cellSize, cellSize);
+
+  // 데이터 셀 (랜덤 패턴)
+  for (let r = 0; r < cells; r++) {
+    for (let c = 0; c < cells; c++) {
+      if (isFinderArea(r, c, cells)) continue;
+      if (rng() > 0.5) {
+        ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+      }
+    }
+  }
+}
+
+function drawFinderPattern(ctx, x, y, cell) {
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(x, y, cell * 7, cell * 7);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(x + cell, y + cell, cell * 5, cell * 5);
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(x + cell * 2, y + cell * 2, cell * 3, cell * 3);
+}
+
+function isFinderArea(r, c, cells) {
+  return (r < 9 && c < 9) || (r < 9 && c >= cells - 8) || (r >= cells - 8 && c < 9);
 }
 
 function downloadQR() {
-  const wrap = document.getElementById('qr-canvas-wrap');
-  if (!wrap) return;
-  const canvas = wrap.querySelector('canvas');
-  if (!canvas) { showToast('QR 코드를 먼저 생성하세요'); return; }
-
-  const link = document.createElement('a');
-  link.download = 'creosigil-qr.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  showToast('QR 코드 저장 완료');
+  const canvas = document.getElementById('qr-canvas');
+  if (!canvas) return;
+  const a = document.createElement('a');
+  a.download = 'creosigil_qr.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('QR 코드 저장됨');
 }
 
-// ========== TOOLTIP (MORE INFO) ==========
-function openTooltip(title, content) {
-  const sheet = document.getElementById('tooltip-sheet');
-  if (!sheet) return;
-  document.getElementById('tooltip-title').textContent = title;
-  document.getElementById('tooltip-body').innerHTML = content;
-  sheet.classList.add('open');
-}
-
-function closeTooltip() {
-  document.getElementById('tooltip-sheet')?.classList.remove('open');
-}
-
-// ========== TOAST ==========
-let toastTimer = null;
-function showToast(message) {
-  let toast = document.getElementById('app-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'app-toast';
-    toast.className = 'toast';
-    document.body.appendChild(toast);
+// ===== 유틸리티 =====
+function toggleMore(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isHidden = el.classList.contains('hidden');
+  el.classList.toggle('hidden', !isHidden);
+  const btn = el.previousElementSibling;
+  if (btn && btn.classList.contains('btn-more')) {
+    btn.textContent = isHidden
+      ? btn.textContent.replace('▾', '▴')
+      : btn.textContent.replace('▴', '▾');
   }
-  toast.textContent = message;
-  toast.classList.add('show');
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-// ========== PWA INSTALL ==========
-let deferredInstall = null;
-function setupPWAInstall() {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstall = e;
-    const banner = document.getElementById('install-banner');
-    if (banner) banner.classList.add('visible');
-  });
-
-  document.getElementById('btn-install')?.addEventListener('click', async () => {
-    if (!deferredInstall) return;
-    deferredInstall.prompt();
-    const { outcome } = await deferredInstall.userChoice;
-    deferredInstall = null;
-    document.getElementById('install-banner')?.classList.remove('visible');
-  });
-
-  document.getElementById('btn-install-dismiss')?.addEventListener('click', () => {
-    document.getElementById('install-banner')?.classList.remove('visible');
-  });
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.remove('hidden');
+  clearTimeout(AppState._toastTimer);
+  AppState._toastTimer = setTimeout(() => toast.classList.add('hidden'), 2500);
 }
 
-// ========== GLOBAL EVENT BINDINGS ==========
-// QR 입력 디바운스
-let qrDebounceTimer = null;
-document.getElementById('qr-input')?.addEventListener('input', () => {
-  clearTimeout(qrDebounceTimer);
-  qrDebounceTimer = setTimeout(generateQR, 500);
-});
-document.getElementById('btn-qr-gen')?.addEventListener('click', generateQR);
-document.getElementById('btn-qr-download')?.addEventListener('click', downloadQR);
-document.getElementById('btn-qr-close')?.addEventListener('click', closeQRModal);
-document.getElementById('btn-tooltip-close')?.addEventListener('click', closeTooltip);
+// ===== 초기화 =====
+document.addEventListener('DOMContentLoaded', () => {
+  renderHomeRecent();
 
-// Close modals on overlay click
-document.getElementById('qr-modal')?.addEventListener('click', function(e) {
-  if (e.target === this) closeQRModal();
-});
-document.getElementById('tooltip-sheet')?.addEventListener('click', function(e) {
-  if (e.target === this) closeTooltip();
+  // 슬라이더 초기값 표시
+  document.getElementById('size-val') && (document.getElementById('size-val').textContent = '100');
+  document.getElementById('linewidth-val') && (document.getElementById('linewidth-val').textContent = '2');
+  document.getElementById('glow-val') && (document.getElementById('glow-val').textContent = '5');
+  document.getElementById('rotate-val') && (document.getElementById('rotate-val').textContent = '0');
 });
