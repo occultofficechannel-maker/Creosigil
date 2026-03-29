@@ -79,22 +79,31 @@
     </div>
 
     <!-- ===== QR 생성기 모달 ===== -->
-    <div id="modal-qr" class="modal hidden">
-      <div class="modal-backdrop" onclick="hideQRGenerator()"></div>
-      <div class="modal-content">
+    <div id="modal-qr" class="modal hidden" onclick="handleModalBackdropClick(event)">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <!-- 드래그 핸들 -->
+        <div style="width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 20px;"></div>
         <div class="modal-header">
-          <h3>QR 생성기</h3>
+          <h3>⬛ QR 생성기</h3>
           <button class="modal-close" onclick="hideQRGenerator()">✕</button>
         </div>
         <div class="modal-body">
-          <p class="modal-desc">URL 또는 텍스트를 입력하면 QR 코드를 생성합니다.</p>
-          <input type="text" id="qr-input" class="input-field" placeholder="https://youtube.com/@cursekey" value="https://youtube.com/@cursekey">
-          <button class="btn-primary" style="margin-bottom:0" onclick="generateQR()">QR 생성</button>
+          <p class="modal-desc">URL 또는 텍스트를 입력하면 스캔 가능한 QR 코드를 생성합니다.</p>
+          <input type="text" id="qr-input" class="input-field"
+                 placeholder="https://youtube.com/@cursekey"
+                 value="https://youtube.com/@cursekey"
+                 oninput="resetQRResult()">
+          <button class="btn-primary" onclick="generateQR()" style="letter-spacing:1px;">
+            QR 코드 생성
+          </button>
           <div id="qr-result" class="qr-result hidden">
-            <canvas id="qr-canvas"></canvas>
-            <div class="qr-actions">
-              <button class="btn-secondary" onclick="downloadQR()">PNG 저장</button>
-            </div>
+            <canvas id="qr-canvas" style="border-radius:12px;border:3px solid rgba(169,146,255,0.3);"></canvas>
+            <p style="font-size:12px;color:var(--text-muted);text-align:center;">
+              폰 카메라로 스캔하거나 아래 버튼으로 저장하세요
+            </p>
+            <button class="btn-secondary" onclick="downloadQR()" style="width:100%;">
+              💾 PNG로 저장
+            </button>
           </div>
         </div>
       </div>

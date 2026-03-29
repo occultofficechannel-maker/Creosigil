@@ -616,78 +616,121 @@ function loadFromArchive(id) {
 // ===== QR 생성기 =====
 function showQRGenerator() {
   const modal = document.getElementById('modal-qr');
-  if (modal) {
-    modal.classList.remove('hidden');
-    // 기본값으로 유튜브 링크 미리 QR 생성
-    setTimeout(() => {
-      const input = document.getElementById('qr-input');
-      if (input && input.value.trim()) generateQR();
-    }, 100);
-  }
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  document.body.classList.add('modal-open');
+  // 모달 열자마자 유튜브 주소로 QR 자동 생성
+  setTimeout(() => generateQR(), 200);
 }
 
 function hideQRGenerator() {
   const modal = document.getElementById('modal-qr');
   if (modal) modal.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+}
+
+function handleModalBackdropClick(e) {
+  // modal-content 바깥(배경) 클릭 시 닫기
+  if (e.target === document.getElementById('modal-qr')) {
+    hideQRGenerator();
+  }
+}
+
+function resetQRResult() {
+  const resultDiv = document.getElementById('qr-result');
+  if (resultDiv) resultDiv.classList.add('hidden');
 }
 
 function generateQR() {
-  const input = document.getElementById('qr-input')?.value?.trim();
-  if (!input) { showToast('URL 또는 텍스트를 입력해주세요'); return; }
+  const inputEl = document.getElementById('qr-input');
+  const text = inputEl?.value?.trim();
+  if (!text) { showToast('URL 또는 텍스트를 입력해주세요'); return; }
 
   const resultDiv = document.getElementById('qr-result');
   const canvas = document.getElementById('qr-canvas');
   if (!canvas || !resultDiv) return;
 
-  // qrcode 라이브러리 사용 (CDN에서 로드)
-  if (typeof QRCode !== 'undefined') {
-    try {
-      QRCode.toCanvas(canvas, input, {
-        width: 220,
-        margin: 2,
-        color: { dark: '#0a0a0f', light: '#ffffff' },
-        errorCorrectionLevel: 'M'
-      }, (err) => {
-        if (err) {
-          showToast('QR 생성 실패: ' + err.message);
-          return;
-        }
-        resultDiv.classList.remove('hidden');
-        showToast('✅ QR 코드가 생성되었습니다');
-      });
-    } catch (e) {
-      showToast('QR 생성 중 오류: ' + e.message);
-    }
-  } else {
-    // 라이브러리 로드 안 됐을 경우 폴백: 구글 차트 API
-    const encoded = encodeURIComponent(input);
-    const imgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}&bgcolor=ffffff&color=0a0a0f`;
-    const ctx = canvas.getContext('2d');
-    canvas.width = 220;
-    canvas.height = 220;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 220, 220);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, 220, 220);
+  // 방법 1: qrcode.js CDN 라이브러리
+  if (typeof QRCode !== 'undefined' && typeof QRCode.toCanvas === 'function') {
+    QRCode.toCanvas(canvas, text, {
+      width: 240,
+      margin: 2,
+      color: { dark: '#1a0a2e', light: '#ffffff' },
+      errorCorrectionLevel: 'M'
+    }, (err) => {
+      if (err) {
+        console.warn('QRCode.toCanvas 실패, 폴백 사용:', err);
+        generateQRFallback(canvas, text, resultDiv);
+        return;
+      }
       resultDiv.classList.remove('hidden');
-      showToast('✅ QR 코드가 생성되었습니다');
-    };
-    img.onerror = () => {
-      showToast('QR 생성 실패. 인터넷 연결을 확인해주세요.');
-    };
-    img.src = imgUrl;
+      showToast('✅ QR 코드 생성 완료!');
+    });
+    return;
   }
+
+  // 방법 2: API 폴백
+  generateQRFallback(canvas, text, resultDiv);
+}
+
+function generateQRFallback(canvas, text, resultDiv) {
+  // qrserver.com 무료 API 사용
+  const size = 240;
+  const encoded = encodeURIComponent(text);
+  const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&bgcolor=FFFFFF&color=1a0a2e&margin=10`;
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = size;
+  canvas.height = size;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#a992ff';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('QR 생성 중...', size/2, size/2);
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+    resultDiv.classList.remove('hidden');
+    showToast('✅ QR 코드 생성 완료!');
+  };
+  img.onerror = () => {
+    // API도 실패하면 텍스트 안내
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = '#1a1a26';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#a992ff';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('인터넷 연결 필요', size/2, size/2 - 10);
+    ctx.fillStyle = '#6b6285';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('네트워크를 확인해주세요', size/2, size/2 + 14);
+    resultDiv.classList.remove('hidden');
+    showToast('⚠️ QR 생성 실패: 인터넷을 확인해주세요');
+  };
+  img.src = apiUrl;
 }
 
 function downloadQR() {
   const canvas = document.getElementById('qr-canvas');
   if (!canvas) return;
   try {
+    const offscreen = document.createElement('canvas');
+    const padding = 20;
+    offscreen.width = canvas.width + padding * 2;
+    offscreen.height = canvas.height + padding * 2;
+    const ctx = offscreen.getContext('2d');
+    // 흰 배경 + 패딩
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+    ctx.drawImage(canvas, padding, padding);
     const a = document.createElement('a');
     a.download = 'creosigil_qr.png';
-    a.href = canvas.toDataURL('image/png');
+    a.href = offscreen.toDataURL('image/png');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
