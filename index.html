@@ -14,6 +14,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <!-- QR 코드 생성 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
   <!-- 앱 전체 래퍼 -->
@@ -21,7 +23,7 @@
 
     <!-- ===== 홈 화면 ===== -->
     <div id="screen-home" class="screen active">
-      <div class="home-container">
+      <div class="home-container screen-body">
         <div class="app-header">
           <div class="app-icon-wrap">
             <img src="icons/icon.svg" alt="CREOSIGIL" class="app-icon">
@@ -86,8 +88,8 @@
         </div>
         <div class="modal-body">
           <p class="modal-desc">URL 또는 텍스트를 입력하면 QR 코드를 생성합니다.</p>
-          <input type="text" id="qr-input" class="input-field" placeholder="URL 또는 텍스트 입력" value="">
-          <button class="btn-primary" onclick="generateQR()">QR 생성</button>
+          <input type="text" id="qr-input" class="input-field" placeholder="https://youtube.com/@cursekey" value="https://youtube.com/@cursekey">
+          <button class="btn-primary" style="margin-bottom:0" onclick="generateQR()">QR 생성</button>
           <div id="qr-result" class="qr-result hidden">
             <canvas id="qr-canvas"></canvas>
             <div class="qr-actions">
